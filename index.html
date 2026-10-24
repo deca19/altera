@@ -1558,6 +1558,7 @@ function dailyCheckIn() {
   return true;
 }
 function commit() {
+  window.S = S;
   for (let i = 0; i < 8; i++) { const a = checkAch(); const b = checkPassive(); const c = checkTitles(); if (!a && !b && !c) break; }
   checkMain();
   persist();
@@ -3355,9 +3356,11 @@ function showTSChoice() {
 
 /* ---------- start ---------- */
 function start(data) {
+  window.S = S;
   const fromHot = data && data.S ? migrate(data.S) : null;
   const local = loadLocal();
   S = fromHot || local || fresh();
+  window.S = S;
   if (data && data.tab && VIEWS[data.tab] && data.tab !== 'admin') tab = data.tab;
   applySkin();
   ensurePeriods();

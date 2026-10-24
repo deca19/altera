@@ -13,7 +13,7 @@ GitHub (코드 보관)  ──push──▶  Netlify (사이트 배포, 올릴 �
 | --- | --- |
 | `index.html` | 앱 전체 |
 | `config.js` | Supabase 주소와 공개 키 (직접 채워 넣기) |
-| `supabase/schema.sql` | DB 테이블과 보안 규칙(RLS) |
+| `schema.sql` | DB 테이블과 보안 규칙(RLS) |
 | `netlify.toml` | Netlify 배포 설정 |
 
 ---
@@ -21,9 +21,9 @@ GitHub (코드 보관)  ──push──▶  Netlify (사이트 배포, 올릴 �
 ## 1. Supabase 준비
 
 1. supabase.com 에서 **New project** 를 만든다. 지역은 `Northeast Asia (Seoul)` 이 가깝다.
-2. 왼쪽 **SQL Editor → New query** 에 `supabase/schema.sql` 내용을 전부 붙여 넣고 **Run**.
+2. 왼쪽 **SQL Editor → New query** 에 `schema.sql` 내용을 전부 붙여 넣고 **Run**.
 3. **Authentication → Sign In / Providers** 에서 **Anonymous Sign-Ins** 를 켠다. (Email 은 기본으로 켜져 있다)
-4. **Project Settings → API** 에서 `Project URL` 과 `anon public` 키를 복사해 `config.js` 에 붙여 넣는다.
+4. **Project Settings → API** 에서 `Project URL` 과 `Publishable key` 를 복사해 `config.js` 에 붙여 넣는다.
    - anon 키는 공개용이라 사이트에 들어가도 괜찮다. 데이터는 RLS 규칙이 지킨다.
    - **service_role 키는 절대 넣지 말 것.**
 
@@ -31,7 +31,7 @@ GitHub (코드 보관)  ──push──▶  Netlify (사이트 배포, 올릴 �
 
 1. GitHub 에서 새 저장소(예: `altera`)를 만든다. 공개/비공개 둘 다 된다.
 2. 저장소 화면의 **uploading an existing file** 을 눌러 이 폴더의 파일을 전부 끌어다 놓고 **Commit changes**.
-   (`supabase` 폴더도 같이 올린다)
+   
 
 ## 3. Netlify 로 배포
 

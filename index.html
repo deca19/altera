@@ -1,4 +1,12 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07080c">
+<style>:root{color-scheme:dark;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,-apple-system,"Segoe UI",sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
 <title>ALTERA</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -305,33 +313,6 @@ b{font-weight:700}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
-/* 에로 모드 모바일 */
-#eroModePanel{position:fixed;left:0;right:0;bottom:0;width:100%;max-height:78vh;overflow-y:auto;background:linear-gradient(180deg,#1a0a12,#14080c);border-top:2px solid #ff4d6d;border-radius:16px 16px 0 0;padding:14px 14px calc(14px + env(safe-area-inset-bottom,0px));z-index:99999;color:#fff;font-size:13px;box-shadow:0 -8px 32px rgba(0,0,0,.55);display:none;-webkit-overflow-scrolling:touch}
-@media(min-width:500px){#eroModePanel{left:auto;right:12px;bottom:80px;width:400px;max-height:82vh;border-radius:14px;border:2px solid #ff4d6d;padding:14px}}
-.ero-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid #ff4d6d44}
-.ero-title{font-size:16px;font-weight:800;color:#ff4d6d}
-.ero-close{background:none;border:none;color:#aaa;font-size:20px;cursor:pointer;padding:4px 8px}
-.ero-tabs{display:flex;gap:4px;margin-bottom:12px}
-.ero-tab{flex:1;padding:8px 0;text-align:center;background:#2a151c;border:1px solid #ff4d6d33;border-radius:8px;cursor:pointer;font-size:12px;color:#ffb3c1}
-.ero-tab.active{background:linear-gradient(90deg,#ff4d6d,#e83e5a);color:#fff;font-weight:700}
-.ero-points-box{background:#2a151c;border-radius:8px;padding:10px 12px;margin-bottom:12px;display:flex;justify-content:space-between;border:1px solid #ff4d6d33}
-.ero-points-value{font-size:17px;font-weight:800;color:#ff8fa3}
-.ero-section-title{font-size:12.5px;color:#ff8fa3;margin:14px 0 6px;font-weight:700;border-left:3px solid #ff4d6d;padding-left:7px}
-.ero-card{background:#2a151c;border-radius:8px;padding:10px;margin-bottom:7px;border:1px solid #ff4d6d28}
-.ero-card-header{display:flex;justify-content:space-between;align-items:center;gap:6px}
-.ero-name{font-weight:700;color:#ffe0e6;font-size:12.5px}
-.ero-level{font-size:11px;color:#ff8fa3}
-.ero-desc{font-size:11px;color:#c9a0a8;margin-top:4px;line-height:1.45}
-.ero-effect{font-size:10.5px;color:#ffb3c1;margin-top:3px}
-.ero-btn{background:linear-gradient(90deg,#ff4d6d,#e83e5a);border:none;color:#fff;padding:5px 10px;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700}
-.ero-btn:disabled{background:#444;opacity:.5}
-.quest-card{background:#2a151c;border-radius:8px;padding:10px;margin-bottom:8px;border:1px solid #ff4d6d28}
-.quest-title{font-weight:700;color:#ffe0e6;margin-bottom:3px;font-size:12.5px}
-.quest-desc{font-size:11px;color:#c9a0a8;line-height:1.4;margin-bottom:4px}
-.quest-hint{font-size:10.5px;color:#ff8fa3;margin-bottom:6px}
-.quest-reward{font-size:11px;color:#ffb3c1}
-.quest-status{font-size:11px;color:#7ee2a8;margin-top:4px}
-.ero-toggle-btn{position:fixed;bottom:calc(70px + env(safe-area-inset-bottom,0px));right:12px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#ff4d6d,#c9184a);border:none;color:#fff;font-size:20px;cursor:pointer;z-index:99998;box-shadow:0 4px 16px rgba(255,77,109,.5);display:none}
 </style>
 
 <header class="bar">
@@ -358,6 +339,8 @@ b{font-weight:700}
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
 <script>
 /* ALTERA server bridge: on a self-hosted copy (no claude.ai runtime) this maps the app's storage, identity
    and presence calls onto Supabase. Inside a claude.ai artifact it stays dormant. */
@@ -1558,7 +1541,6 @@ function dailyCheckIn() {
   return true;
 }
 function commit() {
-  window.S = S;
   for (let i = 0; i < 8; i++) { const a = checkAch(); const b = checkPassive(); const c = checkTitles(); if (!a && !b && !c) break; }
   checkMain();
   persist();
@@ -2206,7 +2188,6 @@ function sendChat() {
   chatDraft = ''; chatBusy = true;
   saveChats();
   render();
-  try { if (typeof window.checkEroQuestFromChat === 'function') window.checkEroQuestFromChat(text, n); } catch (e) {}
   const delay = reduceMotion ? 250 : Math.min(2200, 650 + text.length * 22 + Math.random() * 500);
   chatTimer = setTimeout(() => {
     chatTimer = null;
@@ -2456,7 +2437,7 @@ async function isOwner() {
 async function openAdmin() {
   if (adminUnlocked) { go('admin'); return; }
   const owner = await isOwner();
-  if (!owner) { reply(['인식할 수 없는 명령입니다', '▶ "도움말" 입력']); render(); return; }
+  if (!owner) { reply(['인식할 수 없는 명령입니다', '▶ 도움말 입력']); render(); return; }
   if (!window.crypto || !crypto.subtle) { sys(['관리자 인증 불가', '이 환경에서는 암호화를 쓸 수 없습니다'], 'ADMIN'); return; }
   if (Date.now() < adminLockUntil) { sys(['인증 잠김', Math.ceil((adminLockUntil - Date.now()) / 1000) + '초 후 다시 시도'], 'ADMIN'); return; }
   const secret = await getSecret();
@@ -2571,9 +2552,6 @@ async function adminNoticeSet(text) {
 }
 const ADMIN_SELF = {
   points: () => { if (!String(admDraft['adm-setp'] || '').trim()) return; const v = clampInt(admDraft['adm-setp'], 0, 9999999, null); if (v == null) return; S.points = v; return '포인트 ' + fmt(v) + 'P로 설정'; },
-  eropoints: () => { if (!String(admDraft['adm-setero'] || '').trim()) return; const v = clampInt(admDraft['adm-setero'], 0, 9999999, null); if (v == null) return; if (typeof window.setEroPoints === 'function') window.setEroPoints(v); return '에로 포인트 ' + fmt(v) + 'P로 설정'; },
-  erogrant: () => { const v = clampInt(admDraft['adm-grantoro'] || 100, 1, 100000, 100); if (typeof window.grantEroPoints === 'function') window.grantEroPoints(v); return '에로 포인트 +' + fmt(v) + 'P 지급'; },
-  erounlock: () => { if (typeof window.unlockEroMode === 'function') window.unlockEroMode(); return '에로 모드 해금'; },
   level: () => { if (!String(admDraft['adm-setlv'] || '').trim()) return; const v = clampInt(admDraft['adm-setlv'], 1, 99, null); if (v == null) return; S.level = v; S.exp = 0; return '레벨 Lv.' + v + '로 설정'; },
   hidden: () => { HIDDEN.forEach(h => { if (!S.hidden[h.id]) S.hidden[h.id] = Date.now(); if (h.title) addTitle(h.title); }); S.flags.memo = true; return '히든 전부 해금'; },
   ops: () => { OPS.forEach(o => { if (opIsOnce(o) && !S.ops[o.id]) { S.ops[o.id] = Date.now(); if (opFxKey(o) === 'slot') S.slots += Number(o.fx.split(':')[1]); } }); return '영구 조작 전부 보유'; },
@@ -2606,16 +2584,9 @@ function reply(parts, tag) {
 function command(raw) {
   const c = raw.trim();
   if (!c) return;
-  const n = c.replace(/\s+/g, '').toLowerCase();
+  let n = c.replace(/["'`“”‘’「」『』▶▷>]/g, '').replace(/^[\/!.#]+/, '').replace(/[.!?~]+$/, '').replace(/\s+/g, '').toLowerCase();
+  if (n.length > 2 && n.endsWith('입력')) n = n.slice(0, -2);
   if (n === ADMIN_CMD) { consoleLines.push({ s: false, text: '••••••••' }); openAdmin(); return; }
-  if (n === 'deca10' || n === 'eromode' || n === '에로모드') {
-    consoleLines.push({ s: false, text: '••••••••' });
-    if (typeof window.unlockEroMode === 'function') {
-      window.unlockEroMode();
-      reply(['에로 모드 접근', '오른쪽 아래 🔥 버튼을 누르십시오'], 'SYSTEM');
-    } else reply(['에로 모드 모듈 로딩 중', '잠시 후 다시 시도']);
-    commit(); return;
-  }
   consoleLines.push({ s: false, text: c.slice(0, 60) });
   const nav = { '퀘스트': 'quest', '상점': 'shop', '가방': 'bag', '인벤토리': 'bag', '로그': 'log', '기록': 'log', '변환': 'ts', '조작': 'ts', 'ts': 'ts', '칭호': 'titles', '도감': 'titles', 'npc': 'npc', '엔피시': 'npc', '외전': 'quest', '이벤트': 'quest' };
   if (['상태창', '프로필', '정보', '내정보', '상태', '스테이터스'].includes(n)) {
@@ -2653,7 +2624,7 @@ function command(raw) {
   } else if (n === '히든') {
     reply(['히든 시스템', '조건을 만족하기 전까지 표시되지 않습니다']);
   } else {
-    reply(['인식할 수 없는 명령입니다', '▶ "도움말" 입력']);
+    reply(['인식할 수 없는 명령입니다', '▶ 도움말 입력']);
   }
   commit();
 }
@@ -3030,8 +3001,6 @@ function viewAdmin() {
   const self = '<div class="fields">' +
     '<div class="row"><input class="input" id="adm-setp" inputmode="numeric" placeholder="포인트 값" value="' + esc(admDraft['adm-setp'] || '') + '"><button class="btn sm" data-act="adm-self" data-k="points">포인트 설정</button></div>' +
     '<div class="row"><input class="input" id="adm-setlv" inputmode="numeric" placeholder="레벨 값" value="' + esc(admDraft['adm-setlv'] || '') + '"><button class="btn sm" data-act="adm-self" data-k="level">레벨 설정</button></div>' +
-    '<div class="row"><input class="input" id="adm-setero" inputmode="numeric" placeholder="에로 포인트 값" value="' + esc(admDraft['adm-setero'] || '') + '"><button class="btn sm" data-act="adm-self" data-k="eropoints">에로P 설정</button></div>' +
-    '<div class="row"><input class="input" id="adm-grantoro" inputmode="numeric" placeholder="지급량 (기본100)" value="' + esc(admDraft['adm-grantoro'] || '') + '"><button class="btn sm" data-act="adm-self" data-k="erogrant">에로P 지급</button><button class="btn sm" data-act="adm-self" data-k="erounlock">에로모드 해금</button></div>' +
     '<div class="grid2">' +
     [['hidden', '히든 전부 해금'], ['ops', '영구 조작 전부 보유'], ['opday', '하루 1회 조작 초기화'], ['titles', '칭호 전부 획득'], ['traits', '특성 전부 최대'], ['items', '아이템 전부 지급'], ['perms', '시스템 기능 해금'], ['cosmetics', '테마·칭호 해금'], ['npcs', 'NPC 호감도 최대'], ['daily', '일일 퀘스트 초기화'], ['weekly', '주간 퀘스트 초기화'], ['main', '메인 한 단계 넘기기'], ['tsfree', '다음 TS 무료']]
       .map(x => '<button class="btn sm" data-act="adm-self" data-k="' + x[0] + '">' + x[1] + '</button>').join('') +
@@ -3227,8 +3196,6 @@ const ACT = {
     if (!msg) { sys(['명령 실패', '값을 확인하십시오'], 'ADMIN'); return; }
     if (d.k === 'points') admDraft['adm-setp'] = '';
     if (d.k === 'level') admDraft['adm-setlv'] = '';
-    if (d.k === 'eropoints') admDraft['adm-setero'] = '';
-    if (d.k === 'erogrant') admDraft['adm-grantoro'] = '';
     sys(['관리자 명령', msg], 'ADMIN');
     adminRecord('내 계정 · ' + msg);
     commit();
@@ -3356,11 +3323,9 @@ function showTSChoice() {
 
 /* ---------- start ---------- */
 function start(data) {
-  window.S = S;
   const fromHot = data && data.S ? migrate(data.S) : null;
   const local = loadLocal();
   S = fromHot || local || fresh();
-  window.S = S;
   if (data && data.tab && VIEWS[data.tab] && data.tab !== 'admin') tab = data.tab;
   applySkin();
   ensurePeriods();
@@ -3385,5 +3350,6 @@ if (hot && typeof hot.ready === 'function') hot.ready(start);
 else start((hot && hot.data) || {});
 })();
 </script>
-<script src="ero.js" defer></script>
-</body></html>
+
+</body>
+</html>

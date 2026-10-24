@@ -445,7 +445,9 @@ b{font-weight:700}
       if (chReady) return chReady;
       chReady = (async function () {
         var u = await ensureAuth();
-        var key = u.id + ':' + Math.random().toString(36).slice(2, 7);
+        var dev = '';
+        try { dev = localStorage.getItem('altera_device') || ''; if (!/^[a-z0-9]{6,16}$/.test(dev)) { dev = Math.random().toString(36).slice(2, 10); localStorage.setItem('altera_device', dev); } } catch (e) { dev = Math.random().toString(36).slice(2, 10); }
+        var key = u.id + ':' + dev;
         ch = sb.channel('altera-lobby', { config: { presence: { key: key } } });
         ch.on('presence', { event: 'sync' }, function () {
           var st = ch.presenceState(), now = Date.now();
@@ -1325,7 +1327,7 @@ function handleEvent(snap) {
 let presenceSent = '';
 function updatePresence() {
   if (!roomNS) return;
-  const p = { nm: (S.name || '미등록').slice(0, 20), lv: S.level, tab, g: S.gender };
+  const p = { nm: (S.name || '미등록').slice(0, 20), lv: S.level, tab, g: S.gender, dv: /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent || '') ? 'm' : 'pc' };
   const key = JSON.stringify(p);
   if (key === presenceSent) return;
   presenceSent = key;
@@ -2972,14 +2974,14 @@ function viewAdmin() {
   const live = !roomNS ? '<div class="empty">실시간 접속 정보를 받을 수 없는 환경입니다</div>'
     : peers.length ? '<div>' + peers.map(p => {
       const pr = p.presence || {};
-      return '<div class="peer"><span class="on-dot"></span><div><div class="nm">' + esc(String(pr.nm || '이름 없음').slice(0, 20)) + (p.isMe ? ' <span class="badge">나</span>' : '') + (p.guest ? ' <span class="badge">게스트</span>' : '') + '</div><div class="m">Lv.' + clampInt(pr.lv, 0, 999, 0) + ' · ' + esc(TAB_LABEL[pr.tab] || '-') + ' 화면 · ' + esc(pr.g === '여성' ? '여성' : pr.g === '남성' ? '남성' : '-') + '</div></div><span class="m">' + ago(p.updatedAt) + '</span></div>';
+      return '<div class="peer"><span class="on-dot"></span><div><div class="nm">' + esc(String(pr.nm || '이름 없음').slice(0, 20)) + (p.isMe ? ' <span class="badge">나</span>' : '') + (pr.dv ? ' <span class="badge">' + (pr.dv === 'm' ? '폰' : 'PC') + '</span>' : '') + (p.guest ? ' <span class="badge">게스트</span>' : '') + '</div><div class="m">Lv.' + clampInt(pr.lv, 0, 999, 0) + ' · ' + esc(TAB_LABEL[pr.tab] || '-') + ' 화면 · ' + esc(pr.g === '여성' ? '여성' : pr.g === '남성' ? '남성' : '-') + '</div></div><span class="m">' + ago(p.updatedAt) + '</span></div>';
     }).join('') + '</div>' : '<div class="empty">지금 접속한 사람이 없습니다</div>';
   const onlineIds = new Set(peers.map(p => p.by).filter(Boolean));
   const q = String(admDraft['adm-search'] || '').trim().toLowerCase();
   const sorted = adminPlayers.slice().filter(p => !q || String(p.name || '').toLowerCase().indexOf(q) >= 0).sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
   const dayStart = new Date(); dayStart.setHours(0, 0, 0, 0);
   const ov = (n, l) => '<div class="ov"><span class="n">' + fmt(n) + '</span><span class="l">' + l + '</span></div>';
-  const overview = '<div class="grid2">' + ov(adminPlayers.length, '기록된 플레이어') + ov(adminPlayers.filter(p => (p.updatedAt || 0) >= dayStart.getTime()).length, '오늘 활동') + ov(peers.length, '지금 접속') + ov(adminPlayers.reduce((a, p) => a + (Number(p.quests) || 0), 0), '누적 퀘스트') + '</div>';
+  const overview = '<div class="grid2">' + ov(adminPlayers.length, '기록된 플레이어') + ov(adminPlayers.filter(p => (p.updatedAt || 0) >= dayStart.getTime()).length, '오늘 활동') + ov(peers.length, '지금 접속 기기') + ov(adminPlayers.reduce((a, p) => a + (Number(p.quests) || 0), 0), '누적 퀘스트') + '</div>';
   const itemOpts = SHOP.filter(i => i.kind === 'item');
   const players = !dbNS ? '<div class="empty">기록 저장소를 쓸 수 없는 환경입니다</div>'
     : adminPlayersErr ? '<div class="empty">기록을 불러오지 못했습니다 (' + esc(adminPlayersErr) + ')</div>'

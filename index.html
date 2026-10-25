@@ -313,6 +313,8 @@ b{font-weight:700}
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
 }
+.win.urgent{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-soft)}
+.win.urgent .urgent-left{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent)}
 </style>
 
 <header class="bar">
@@ -565,6 +567,24 @@ const DAILY_POOL = [
   { id: 'd_sleep', t: '10분 일찍 눕기', d: '평소보다 10분 일찍 잠자리에 든다.', p: 40, e: 25 },
   { id: 'd_squat', t: '스쿼트 20개', d: '천천히 스쿼트 20개를 한다.', p: 40, e: 30 },
   { id: 'd_msg', t: '안부 묻기', d: '한동안 연락하지 않은 지인에게 안부를 묻는다.', p: 35, e: 20 },
+  { id: 'd_note', t: '필기 다시 보기', d: '오늘 수업 필기를 한 번 훑어본다.', p: 35, e: 25 },
+  { id: 'd_trash', t: '가방 속 쓰레기 비우기', d: '가방과 주머니 속 영수증, 포장지를 버린다.', p: 20, e: 15 },
+  { id: 'd_mood', t: '오늘 기분 한 단어', d: '지금 기분을 한 단어로 적어 둔다.', p: 20, e: 15 },
+  { id: 'd_chore', t: '집안일 하나 돕기', d: '설거지, 빨래 널기 같은 집안일을 하나 맡는다.', p: 45, e: 30 },
+  { id: 'd_eyes', t: '먼 곳 바라보기', d: '창밖 먼 곳을 1분 동안 바라보며 눈을 쉰다.', p: 20, e: 15 },
+  { id: 'd_math', t: '수학 문제 3개', d: '수학 문제 세 개를 끝까지 푼다.', p: 40, e: 30 },
+  { id: 'd_read_aloud', t: '영어 문장 소리 내 읽기', d: '영어 문장 다섯 개를 소리 내어 읽는다.', p: 30, e: 25 },
+  { id: 'd_pushup', t: '팔굽혀펴기 10개', d: '무릎을 대도 좋으니 10개를 채운다.', p: 35, e: 25 },
+  { id: 'd_neck', t: '목 돌리기 1분', d: '목을 천천히 좌우로 돌려 굳은 곳을 푼다.', p: 20, e: 15 },
+  { id: 'd_notif', t: '알림 정리하기', d: '쌓인 알림과 안 쓰는 앱 알림을 정리한다.', p: 25, e: 15 },
+  { id: 'd_recycle', t: '분리수거 하나', d: '쓰레기 하나를 제대로 분리해서 버린다.', p: 25, e: 15 },
+  { id: 'd_self', t: '나 칭찬 한 줄', d: '오늘 잘한 일 하나를 스스로 적는다.', p: 25, e: 20 },
+  { id: 'd_summary', t: '배운 것 한 줄 요약', d: '오늘 새로 알게 된 것을 한 문장으로 정리한다.', p: 35, e: 25 },
+  { id: 'd_quiet', t: '5분 조용히 있기', d: '화면 없이 5분 동안 가만히 쉰다.', p: 25, e: 15 },
+  { id: 'd_doodle', t: '1분 낙서', d: '종이에 아무거나 1분 동안 그린다.', p: 20, e: 15 },
+  { id: 'd_bag', t: '내일 가방 미리 싸기', d: '내일 필요한 물건을 오늘 미리 챙긴다.', p: 30, e: 20 },
+  { id: 'd_water2', t: '물 두 잔 더', d: '평소보다 물을 두 잔 더 마신다.', p: 25, e: 15 },
+  { id: 'd_window', t: '창문 열고 환기', d: '창문을 열어 5분 동안 공기를 바꾼다.', p: 20, e: 15 },
 ];
 const WEEKLY_POOL = [
   { id: 'w_ex', t: '운동 3회', d: '20분 이상 운동을 세 번 한다.', p: 250, e: 150, n: 3 },
@@ -577,6 +597,16 @@ const WEEKLY_POOL = [
   { id: 'w_ontime', t: '지각 없는 5일', d: '닷새 동안 늦지 않는다.', p: 260, e: 150, n: 5 },
   { id: 'w_clean', t: '방 대청소', d: '바닥, 책상, 옷장까지 한 번에 정리한다.', p: 220, e: 130, n: 1 },
   { id: 'w_hobby', t: '취미 시간 3회', d: '좋아하는 일에 30분씩 세 번 쓴다.', p: 210, e: 130, n: 3 },
+  { id: 'w_letter', t: '긴 메시지 쓰기', d: '고마운 사람에게 진심을 담은 긴 메시지를 보낸다.', p: 200, e: 120, n: 1 },
+  { id: 'w_walk3', t: '30분 산책 3회', d: '30분 이상 걷는 날을 세 번 만든다.', p: 230, e: 140, n: 3 },
+  { id: 'w_sleep', t: '자정 전에 잠들기 4회', d: '자정이 되기 전에 잠자리에 드는 날을 네 번 만든다.', p: 260, e: 150, n: 4 },
+  { id: 'w_newfood', t: '안 먹어 본 음식 도전', d: '한 번도 먹어 보지 않은 음식을 맛본다.', p: 180, e: 110, n: 1 },
+  { id: 'w_chores', t: '집안일 3번 돕기', d: '이번 주에 집안일을 세 번 맡는다.', p: 220, e: 130, n: 3 },
+  { id: 'w_learn', t: '새로운 것 하나 배우기', d: '강의 영상 하나, 요리 하나, 기술 하나 등 새로 배운다.', p: 220, e: 140, n: 1 },
+  { id: 'w_detox', t: '반나절 화면 끄기', d: '반나절 동안 휴대폰과 컴퓨터를 쓰지 않는다.', p: 280, e: 160, n: 1 },
+  { id: 'w_photo', t: '사진 일기 5일', d: '닷새 동안 하루 한 장씩 그날의 사진을 남긴다.', p: 220, e: 130, n: 5 },
+  { id: 'w_wrong', t: '오답 정리 2회', d: '틀린 문제를 다시 풀고 이유를 적는 일을 두 번 한다.', p: 240, e: 150, n: 2 },
+  { id: 'w_meal', t: '가족과 식사 3회', d: '가족과 함께 밥을 먹는 날을 세 번 만든다.', p: 200, e: 120, n: 3 },
 ];
 const SUB_POOL = [
   { id: 's_tidy', t: '가방 비우기', d: '가방 속 필요 없는 물건을 정리한다.', diff: '쉬움', p: 40, e: 25 },
@@ -600,6 +630,32 @@ const SUB_POOL = [
   { id: 's_walk30', t: '30분 산책', d: '30분 동안 동네를 걷는다.', diff: '보통', p: 110, e: 65 },
   { id: 's_wash', t: '빨래 개기', d: '마른 빨래를 개서 제자리에 둔다.', diff: '쉬움', p: 40, e: 25 },
 ];
+const URGENT_POOL = [
+  { id: 'u_desk', t: '책상 위 3분 정리', d: '지금 책상 위를 3분 동안 정리한다.', m: 15, p: 90, e: 60 },
+  { id: 'u_water', t: '지금 물 한 컵', d: '자리에서 일어나 물 한 컵을 마신다.', m: 10, p: 60, e: 40 },
+  { id: 'u_air', t: '환기 개시', d: '창문을 열고 5분 동안 공기를 바꾼다.', m: 15, p: 70, e: 45 },
+  { id: 'u_stretch', t: '긴급 스트레칭', d: '목, 어깨, 허리를 3분 동안 푼다.', m: 10, p: 70, e: 45 },
+  { id: 'u_squat', t: '스쿼트 15개', d: '지금 바로 스쿼트 15개를 한다.', m: 10, p: 90, e: 60 },
+  { id: 'u_bag', t: '가방 점검', d: '가방을 열어 필요 없는 것을 꺼낸다.', m: 20, p: 80, e: 50 },
+  { id: 'u_rest', t: '화면에서 눈 떼기', d: '휴대폰을 내려놓고 10분 동안 쉰다.', m: 25, p: 100, e: 60 },
+  { id: 'u_word', t: '단어 2개 외우기', d: '처음 보는 단어 두 개를 외운다.', m: 15, p: 80, e: 55 },
+  { id: 'u_problem', t: '문제 하나 풀기', d: '아무 과목이나 문제 하나를 끝까지 푼다.', m: 20, p: 100, e: 70 },
+  { id: 'u_thanks', t: '고마움 전하기', d: '고마운 사람에게 짧은 메시지를 보낸다.', m: 20, p: 90, e: 55 },
+  { id: 'u_breath', t: '호흡 동기화', d: '눈을 감고 1분 동안 천천히 숨 쉰다.', m: 10, p: 60, e: 40 },
+  { id: 'u_plan', t: '다음 1시간 계획', d: '앞으로 1시간 동안 할 일을 적는다.', m: 15, p: 80, e: 50 },
+  { id: 'u_shoes', t: '현관 정리', d: '현관 신발을 가지런히 맞춘다.', m: 15, p: 60, e: 40 },
+  { id: 'u_walk', t: '5분 걷기', d: '실내든 밖이든 5분 동안 걷는다.', m: 20, p: 90, e: 60 },
+  { id: 'u_photo', t: '지금의 풍경', d: '지금 보이는 풍경을 사진 한 장으로 남긴다.', m: 10, p: 60, e: 40 },
+  { id: 'u_fold', t: '옷 하나 정리', d: '아무렇게나 놓인 옷 하나를 개거나 건다.', m: 15, p: 70, e: 45 },
+  { id: 'u_posture', t: '자세 교정', d: '허리를 펴고 5분 동안 바른 자세를 유지한다.', m: 15, p: 70, e: 45 },
+  { id: 'u_read', t: '세 쪽 읽기', d: '책이든 교과서든 세 쪽을 읽는다.', m: 20, p: 90, e: 60 },
+  { id: 'u_hello', t: '먼저 말 걸기', d: '가까운 사람에게 먼저 말을 건다.', m: 30, p: 90, e: 55 },
+  { id: 'u_trash', t: '쓰레기 하나 버리기', d: '주변 쓰레기 하나를 찾아 버린다.', m: 10, p: 60, e: 40 },
+];
+const URGENT_BY = Object.fromEntries(URGENT_POOL.map(q => [q.id, q]));
+const permOps = s => OPS.filter(o => opIsOnce(o) && s.ops[o.id]).length;
+const opCatsUsed = s => OP_CATS.filter(c => (s.opCount[c.k] || 0) > 0).length;
+const friendCount = s => s.npcs.filter(n => (n.aff || 0) >= 40).length;
 const avgAff = s => s.npcs.length ? Math.max.apply(null, s.npcs.map(n => n.aff || 0)) : 0;
 const looksCount = s => LOOK_FIELDS.filter(f => s.looks[f.k]).length;
 const maxRar = s => Object.keys(s.traits).reduce((m, id) => Math.max(m, (SHOP_BY[id] && SHOP_BY[id].rar) || 0), 0);
@@ -624,6 +680,16 @@ const MAIN = [
   { t: '숨겨진 다섯', d: '히든 기능을 5개 해금한다.', p: 1000, e: 500, ok: s => hiddenCount(s) >= 5, prog: s => [hiddenCount(s), 5] },
   { t: '신뢰', d: 'NPC 한 명의 호감도를 100까지 올린다.', p: 1200, e: 600, ok: s => avgAff(s) >= 100, prog: s => [avgAff(s), 100] },
   { t: '현실 편집', d: '레벨 15에 도달하고 히든 기능을 10개 해금한다.', p: 3000, e: 0, ok: s => s.level >= 15 && hiddenCount(s) >= 10, prog: s => [Math.min(s.level, 15) + Math.min(hiddenCount(s), 10), 25] },
+  { t: '균열의 징후', d: '현실 조작을 10회 사용한다. 조작할수록 현실에 미세한 금이 간다.', p: 500, e: 250, ok: s => s.stats.ops >= 10, prog: s => [s.stats.ops, 10] },
+  { t: '긴급 신호', d: '돌발 퀘스트를 3개 완료한다.', p: 500, e: 250, ok: s => (s.stats.urgent || 0) >= 3, prog: s => [s.stats.urgent || 0, 3] },
+  { t: '목소리들', d: 'NPC와 50번 대화한다. 균열을 먼저 눈치챈 건 주변 사람들이다.', p: 600, e: 300, ok: s => s.stats.chats >= 50, prog: s => [s.stats.chats, 50] },
+  { t: '두 번째 사용자의 답', d: '이야기 퀘스트를 끝까지 진행해 결말을 본다.', p: 700, e: 300, ok: s => !!(s.story && s.story.ending) },
+  { t: '흔들리지 않는 일상', d: '완벽한 하루(일일 퀘스트 전부 완료)를 3번 만든다.', p: 800, e: 400, ok: s => s.stats.perfect >= 3, prog: s => [s.stats.perfect, 3] },
+  { t: '영구 개변', d: '영구 현실 조작을 5종 보유한다.', p: 800, e: 400, ok: s => permOps(s) >= 5, prog: s => [permOps(s), 5] },
+  { t: '관측자', d: '현실 조작 갈래 8개 이상을 한 번씩 사용한다.', p: 900, e: 450, ok: s => opCatsUsed(s) >= 8, prog: s => [opCatsUsed(s), 8] },
+  { t: '작은 사회', d: 'NPC 3명과 친구 사이(호감도 40) 이상이 된다.', p: 1000, e: 500, ok: s => friendCount(s) >= 3, prog: s => [friendCount(s), 3] },
+  { t: '스무 번째 계단', d: '레벨 20에 도달한다.', p: 1500, e: 0, ok: s => s.level >= 20, prog: s => [s.level, 20] },
+  { t: '현실의 설계도', d: '레벨 25에 도달하고 히든 기능을 15개 해금한다.', p: 5000, e: 0, ok: s => s.level >= 25 && hiddenCount(s) >= 15, prog: s => [Math.min(s.level, 25) + Math.min(hiddenCount(s), 15), 40] },
 ];
 const HIDDEN = [
   { id: 'h_night', t: '심야의 접속자', d: '자정부터 새벽 4시 사이에 접속했다.', hint: '깊은 밤에 접속하라', p: 200, e: 100, title: '올빼미' },
@@ -666,6 +732,30 @@ const ACH = [
   { id: 'a_rev3', t: '복원가', d: '변화를 3번 되돌렸다.', p: 150, ok: s => s.stats.reverts >= 3 },
   { id: 'a_looks', t: '변신', d: '외형 항목 8개를 설정했다.', title: '변신술사', ok: s => looksCount(s) >= 8 },
   { id: 'a_myth', t: '신화', d: '신화 등급 특성을 얻었다.', title: '현실 편집자', hidden: true, ok: s => !!s.traits.t_editor },
+  { id: 'a_ts10', t: '현실 재편', d: 'TS 기능을 10회 사용했다.', p: 200, ok: s => s.stats.ts >= 10 },
+  { id: 'a_ops10', t: '조작 입문', d: '현실 조작을 10회 사용했다.', p: 100, ok: s => s.stats.ops >= 10 },
+  { id: 'a_ops50', t: '조작의 달인', d: '현실 조작을 50회 사용했다.', p: 300, ok: s => s.stats.ops >= 50 },
+  { id: 'a_ops100', t: '세계의 편집자', d: '현실 조작을 100회 사용했다.', p: 600, ok: s => s.stats.ops >= 100 },
+  { id: 'a_perm5', t: '영구 기록', d: '영구 현실 조작을 5종 보유했다.', p: 300, ok: s => permOps(s) >= 5 },
+  { id: 'a_chat50', t: '말동무', d: 'NPC와 50번 대화했다.', p: 200, ok: s => s.stats.chats >= 50 },
+  { id: 'a_chat200', t: '이야기꾼', d: 'NPC와 200번 대화했다.', p: 500, ok: s => s.stats.chats >= 200 },
+  { id: 'a_npc10', t: '작은 마을', d: 'NPC를 10명 만들었다.', p: 300, ok: s => s.npcs.length >= 10 },
+  { id: 'a_friends3', t: '친구 셋', d: 'NPC 3명과 친구 사이가 되었다.', p: 300, ok: s => friendCount(s) >= 3 },
+  { id: 'a_trust', t: '깊은 신뢰', d: 'NPC 한 명의 호감도가 100이 되었다.', p: 400, ok: s => avgAff(s) >= 100 },
+  { id: 'a_lv20', t: '스무 번째 계단', d: '레벨 20에 도달했다.', p: 800, ok: s => s.level >= 20 },
+  { id: 'a_lv25', t: '높은 곳', d: '레벨 25에 도달했다.', p: 1200, ok: s => s.level >= 25 },
+  { id: 'a_streak7', t: '일주일', d: '7일 연속으로 접속했다.', p: 300, ok: s => s.streak.n >= 7 },
+  { id: 'a_streak30', t: '한 달', d: '30일 연속으로 접속했다.', p: 1500, ok: s => s.streak.n >= 30 },
+  { id: 'a_perfect3', t: '완벽한 사흘', d: '완벽한 하루를 3번 만들었다.', p: 300, ok: s => s.stats.perfect >= 3 },
+  { id: 'a_daily50', t: '오십 번의 일상', d: '일일 퀘스트 50개를 완료했다.', p: 500, ok: s => s.stats.daily >= 50 },
+  { id: 'a_weekly5', t: '주간 루틴', d: '주간 퀘스트 5개를 완료했다.', p: 300, ok: s => s.stats.weekly >= 5 },
+  { id: 'a_weekly20', t: '스무 주의 기록', d: '주간 퀘스트 20개를 완료했다.', p: 1000, ok: s => s.stats.weekly >= 20 },
+  { id: 'a_earn10k', t: '축재', d: '누적 10,000P를 획득했다.', p: 500, ok: s => s.stats.earned >= 10000 },
+  { id: 'a_hidden10', t: '숨은 것을 찾는 자', d: '히든 기능 10개를 해금했다.', p: 500, ok: s => hiddenCount(s) >= 10 },
+  { id: 'a_titles30', t: '이름 수집', d: '칭호를 30개 모았다.', p: 400, ok: s => s.titles.length >= 30 },
+  { id: 'a_story', t: '이야기의 끝', d: '이야기 퀘스트의 결말을 보았다.', p: 300, ok: s => !!(s.story && s.story.ending) },
+  { id: 'a_urgent1', t: '긴급 대응', d: '돌발 퀘스트를 처음 완료했다.', p: 100, ok: s => (s.stats.urgent || 0) >= 1 },
+  { id: 'a_urgent10', t: '비상 대기조', d: '돌발 퀘스트 10개를 완료했다.', p: 600, ok: s => (s.stats.urgent || 0) >= 10 },
 ];
 const SHOP = [
   { id: 't_diligent', cat: '특성', kind: 'trait', rar: 1, name: '부지런함', desc: '일일 퀘스트 포인트 증가', lv: ['+20%', '+35%', '+50%'], price: 150, max: 3 },
@@ -757,6 +847,15 @@ const NPC_EVENTS = [
   { k: 'gift', c: n => (n.aff || 0) >= 40, t: n => n.name + '이(가) 작은 선물을 건넸다.', o: [['고맙게 받는다', { aff: 4, item: 1 }]] },
   { k: 'birthday', c: n => (n.aff || 0) >= 20, t: n => '오늘은 ' + n.name + '의 생일이다.', o: [['축하해 준다 (-30P)', { aff: 12, p: -30 }], ['모르고 지나간다', { aff: -3 }]] },
   { k: 'notice', c: n => S.changes.some(c => c.npcId === n.id && !c.rev), t: n => n.name + '이(가) 요즘 뭔가 이상하지 않냐고 묻는다.', o: [['얼버무린다', { aff: -2 }], ['사실대로 말한다', { truth: 1 }]] },
+  { k: 'rain', t: n => '갑자기 비가 쏟아진다. ' + n.name + '이(가) 우산이 없다.', o: [['우산을 같이 쓴다', { aff: 7, e: 15 }], ['먼저 간다', { aff: -2 }]] },
+  { k: 'game', t: n => n.name + '이(가) 같이 게임 한 판 하자고 한다.', o: [['한 판 한다', { aff: 5, e: 10 }], ['할 일이 있다고 한다', { e: 15 }]] },
+  { k: 'exam', c: n => (n.aff || 0) >= 20, t: n => n.name + '이(가) 시험을 앞두고 많이 긴장하고 있다.', o: [['같이 문제를 풀어 준다', { aff: 9, e: 25 }], ['응원 한마디만 한다', { aff: 3 }]] },
+  { k: 'sick', t: n => n.name + '이(가) 아파서 오늘 학교에 못 왔다.', o: [['필기를 정리해서 보내 준다', { aff: 9, e: 20 }], ['괜찮냐고 연락만 한다', { aff: 3 }]] },
+  { k: 'snack', c: n => (n.aff || 0) >= 20, t: n => n.name + '이(가) 편의점에 같이 가자고 한다.', o: [['간식을 사 준다 (-30P)', { aff: 8, p: -30 }], ['같이 걷기만 한다', { aff: 3, e: 10 }]] },
+  { k: 'quarrel', c: n => (n.aff || 0) >= 40, t: n => n.name + '이(가) 다른 친구와 다퉈서 기분이 가라앉아 있다.', o: [['편을 들지 않고 이야기를 들어 준다', { aff: 8, e: 20 }], ['빨리 화해하라고 재촉한다', { aff: -3 }]] },
+  { k: 'photo', t: n => n.name + '이(가) 같이 사진 한 장 찍자고 한다.', o: [['같이 찍는다', { aff: 5, e: 10 }], ['사진은 별로라고 한다', { aff: -1 }]] },
+  { k: 'carry', t: n => n.name + '이(가) 무거운 짐을 들고 낑낑대고 있다.', o: [['같이 들어 준다', { aff: 6, e: 20 }], ['못 본 척한다', { aff: -2 }]] },
+  { k: 'surprise', c: n => (n.aff || 0) >= 70, t: n => n.name + '이(가) 너를 위해 뭔가를 준비했다며 웃는다.', o: [['기쁘게 받는다', { aff: 5, item: 1, e: 20 }]] },
 ];
 const NPC_GIFT_ITEMS = ['i_box', 'i_charm', 'i_shard', 'i_gift', 'i_boost'];
 const OP_CATS = [
@@ -1159,9 +1258,9 @@ function fresh() {
     daily: { date: '', list: [] }, weekly: { key: '', list: [] }, sub: [], mainIdx: 0, mainNotified: -1,
     hidden: {}, ach: {}, flags: {}, changes: [], log: [], boost: false, charm: false, tsFree: true, tutorialDone: false,
     npcs: [], tsNames: [], streak: { last: '', n: 0 }, inboxSeen: {}, noticeSeen: 0, eventSeen: 0,
-    story: { idx: 0, base: {}, ch: {}, ending: '' }, npcEvent: null,
+    story: { idx: 0, base: {}, ch: {}, ending: '' }, npcEvent: null, urgent: null, urgentNext: 0,
     ops: {}, opDay: {}, opCount: {}, oplog: [], world: {}, luckDay: '', chatAff: {},
-    stats: { quests: 0, daily: 0, weekly: 0, ts: 0, selfTs: 0, buys: 0, spent: 0, earned: 0, reverts: 0, perfect: 0, ops: 0, chats: 0 }
+    stats: { quests: 0, daily: 0, weekly: 0, ts: 0, selfTs: 0, buys: 0, spent: 0, earned: 0, reverts: 0, perfect: 0, ops: 0, chats: 0, urgent: 0 }
   };
 }
 function migrate(o) {
@@ -1177,6 +1276,8 @@ function migrate(o) {
   if (!s.story.base || typeof s.story.base !== 'object') s.story.base = {};
   if (!s.story.ch || typeof s.story.ch !== 'object') s.story.ch = {};
   if (s.npcEvent && typeof s.npcEvent !== 'object') s.npcEvent = null;
+  if (s.urgent && (typeof s.urgent !== 'object' || !URGENT_BY[s.urgent.id])) s.urgent = null;
+  if (typeof s.urgentNext !== 'number') s.urgentNext = 0;
   Object.keys(s.looks).forEach(k => { if (!LOOK_FIELDS.some(f => f.k === k)) delete s.looks[k]; });
   return s;
 }
@@ -1450,7 +1551,7 @@ function grant(p, e, src) {
   while (S.exp >= need(S.level)) { S.exp -= need(S.level); S.level++; levelUp(S.level); }
 }
 const LEVEL_UNLOCKS = {
-  2: '외형 편집 해금 | 일일 퀘스트 슬롯 확장 판매 시작',
+  2: '외형 편집 해금 | 일일 퀘스트 슬롯 확장 판매 시작 | 돌발 퀘스트 발생 시작',
   3: '특성 「통찰」「동기화 가속」 판매 시작',
   4: '특성 「연쇄」 · 칭호 「선택받은 자」 판매 시작',
   5: '특성 「현실 친화」 판매 시작',
@@ -1458,6 +1559,8 @@ const LEVEL_UNLOCKS = {
   8: '칭호 「현실 설계자」 판매 시작',
   10: 'ALTERA가 질문에 답할 수 있게 되었습니다',
   15: '메인 퀘스트 2장 최종 조건 개방',
+  20: '메인 퀘스트 3장 「스무 번째 계단」 달성 가능',
+  25: '메인 퀘스트 3장 최종 조건 개방',
 };
 function levelUp(lv) {
   const bonus = 50 * lv;
@@ -1578,6 +1681,55 @@ function rerollDaily() {
   const picked = pick(DAILY_POOL, S.daily.list.length - keep.length, r, S.daily.list.map(q => q.id)).map(q => ({ id: q.id, done: false }));
   S.daily.list = keep.concat(picked);
 }
+/* ---------- 돌발 퀘스트 ---------- */
+function urgentGap() { return (120 + Math.floor(Math.random() * 180)) * 60000; }
+function spawnUrgent(force) {
+  const now = Date.now();
+  const last = S.urgent && S.urgent.id;
+  const pool = URGENT_POOL.filter(q => q.id !== last);
+  const q = rnd(pool);
+  S.urgent = { id: q.id, at: now, until: now + q.m * 60000, state: 'open' };
+  sys(['돌발 퀘스트 발생', '▶ ' + q.t, q.m + '분 안에 완료'], 'ALTERA');
+  if (!force) log('돌발 퀘스트 발생 · ' + q.t);
+  return true;
+}
+function checkUrgent() {
+  if (!S.tutorialDone || S.level < 2) return false;
+  const now = Date.now();
+  const U = S.urgent;
+  if (U && U.state === 'open') {
+    if (now <= U.until) return false;
+    const q = URGENT_BY[U.id];
+    U.state = 'fail';
+    S.urgentNext = now + urgentGap();
+    sys(['돌발 퀘스트 실패', '▶ ' + (q ? q.t : '알 수 없음'), '시간 초과']);
+    return true;
+  }
+  if (!S.urgentNext) { S.urgentNext = now + (10 + Math.floor(Math.random() * 30)) * 60000; return false; }
+  if (now < S.urgentNext) return false;
+  const h = new Date().getHours();
+  if (h < 7) { S.urgentNext = now + 30 * 60000; return false; }
+  return spawnUrgent(false);
+}
+function urgentLeft(U) {
+  const ms = Math.max(0, U.until - Date.now());
+  const m = Math.floor(ms / 60000), sec = Math.floor((ms % 60000) / 1000);
+  return m + '분 ' + String(sec).padStart(2, '0') + '초';
+}
+function urgentWin() {
+  const U = S.urgent;
+  if (!U || U.state !== 'open' || Date.now() > U.until) return '';
+  const q = URGENT_BY[U.id]; if (!q) return '';
+  return win('돌발 퀘스트', '<span class="urgent-left" data-until="' + U.until + '">' + urgentLeft(U) + '</span>', '<div class="main-q"><div><div class="q-t">' + esc(q.t) + '</div><div class="q-d">' + esc(q.d) + '</div><div class="q-r">' + rewardText(q.p, q.e, 'urgent') + '</div></div><div class="grid2"><button class="btn primary" data-act="urgent-done">완료</button><button class="btn" data-act="urgent-skip">포기</button></div></div>', 'urgent', 'ALTERA');
+}
+setInterval(() => {
+  document.querySelectorAll('.urgent-left[data-until]').forEach(el => {
+    const until = +el.dataset.until;
+    if (Date.now() > until) { el.textContent = '시간 초과'; return; }
+    el.textContent = urgentLeft({ until });
+  });
+}, 1000);
+
 function questReward(base, kind) {
   let p = base.p * pointMult(kind), e = base.e * expMult();
   if (S.boost && e > 0) { e *= 2; S.boost = false; sys(['경험치 부스터 적용', 'EXP 2배']); }
@@ -2568,6 +2720,7 @@ const ADMIN_SELF = {
   weekly: () => { S.weekly.list.forEach(q => { q.done = false; q.c = 0; }); return '주간 퀘스트 초기화'; },
   main: () => { if (S.mainIdx < MAIN.length) { S.mainIdx++; return '메인 퀘스트 한 단계 건너뜀'; } },
   tsfree: () => { S.tsFree = true; return '다음 TS 무료'; },
+  urgent: () => { spawnUrgent(true); return '돌발 퀘스트 즉시 발생'; },
 };
 async function changeAdminPw() {
   const r = await pwModal('비밀번호 변경', [{ id: 'apw-1', l: '새 비밀번호 (4자 이상)' }, { id: 'apw-2', l: '한 번 더' }]);
@@ -2728,7 +2881,7 @@ function viewStatus() {
   }).join('') + '</div>');
   const memo = S.flags.memo ? win('관리자 메모', '히든', '<div class="memo"><p>ALTERA-0 기록 단편 #1 <span class="x">첫 번째 사용자는 무작위로 선택되지 않았다.</span></p><p>#2 <span class="x">동기화는 되돌릴 수 있다. 기억은 되돌릴 수 없다.</span></p><p>#3 <span class="x">다음 사용자가 나타나기까지 남은 시간 ██:██:██</span></p></div>') : '';
   const corner = '<div class="corner"><button class="btn ghost" data-act="tab" data-tab="npc">NPC ' + S.npcs.length + ' ›</button></div>';
-  return status + npcEventWin(false) + consoleWin + memo + titleWin + achWin + corner;
+  return status + urgentWin() + npcEventWin(false) + consoleWin + memo + titleWin + achWin + corner;
 }
 function questRow(o) {
   return '<div class="q' + (o.done ? ' done' : '') + '"><div><div class="q-t">' + (o.badge ? '<span class="badge">' + o.badge + '</span>' : '') + esc(o.t) + '</div>' + (o.d ? '<div class="q-d">' + esc(o.d) + '</div>' : '') + '<div class="q-r">' + o.reward + '</div></div>' + o.right + '</div>';
@@ -2755,16 +2908,17 @@ function storyWin() {
 function viewQuest() {
   let out = '';
   if (eventMult() > 1) out += win('이벤트', eventLeft(), '<div><div class="q-t">' + esc(String(globalEvent.label || '보상 증가 이벤트')) + '</div><div class="q-d">모든 퀘스트의 포인트와 EXP ×' + eventMult() + '</div></div>', '', 'ALTERA');
+  out += urgentWin();
   const m = MAIN[S.mainIdx];
   if (m) {
     const ready = m.ok(S);
     const pr = m.prog ? m.prog(S) : null;
-    const ch = S.mainIdx < 10 ? 1 : 2;
+    const ch = Math.floor(S.mainIdx / 10) + 1;
     const pos = (S.mainIdx % 10) + 1;
     out += win('메인 퀘스트 · ' + ch + '장', pos + ' / 10', '<div class="main-q"><div><div class="q-t">' + esc(m.t) + '</div><div class="q-d">' + esc(m.d) + '</div><div class="q-r">보상 +' + fmt(m.p) + 'P' + (m.e ? ' · +' + fmt(m.e) + 'EXP' : '') + '</div></div>' +
       (ready ? '<button class="btn primary block" data-act="main-claim">보상 받기</button>' : '<div class="prog">' + (pr ? '진행 ' + Math.min(pr[0], pr[1]) + ' / ' + pr[1] : '진행 중') + '</div>') + '</div>');
   } else {
-    out += win('메인 퀘스트', '완료', '<div class="main-q"><div class="q-t">2장 완료</div><div class="q-d">다음 장은 아직 열리지 않았습니다. ALTERA가 다음 조건을 준비하고 있습니다.</div></div>');
+    out += win('메인 퀘스트', '완료', '<div class="main-q"><div class="q-t">' + Math.ceil(MAIN.length / 10) + '장 완료</div><div class="q-d">다음 장은 아직 열리지 않았습니다. ALTERA가 다음 조건을 준비하고 있습니다.</div></div>');
   }
   out += storyWin();
   const dDone = S.daily.list.filter(q => q.done).length;
@@ -3004,7 +3158,7 @@ function viewAdmin() {
     '<div class="row"><input class="input" id="adm-setp" inputmode="numeric" placeholder="포인트 값" value="' + esc(admDraft['adm-setp'] || '') + '"><button class="btn sm" data-act="adm-self" data-k="points">포인트 설정</button></div>' +
     '<div class="row"><input class="input" id="adm-setlv" inputmode="numeric" placeholder="레벨 값" value="' + esc(admDraft['adm-setlv'] || '') + '"><button class="btn sm" data-act="adm-self" data-k="level">레벨 설정</button></div>' +
     '<div class="grid2">' +
-    [['hidden', '히든 전부 해금'], ['ops', '영구 조작 전부 보유'], ['opday', '하루 1회 조작 초기화'], ['titles', '칭호 전부 획득'], ['traits', '특성 전부 최대'], ['items', '아이템 전부 지급'], ['perms', '시스템 기능 해금'], ['cosmetics', '테마·칭호 해금'], ['npcs', 'NPC 호감도 최대'], ['daily', '일일 퀘스트 초기화'], ['weekly', '주간 퀘스트 초기화'], ['main', '메인 한 단계 넘기기'], ['tsfree', '다음 TS 무료']]
+    [['hidden', '히든 전부 해금'], ['ops', '영구 조작 전부 보유'], ['opday', '하루 1회 조작 초기화'], ['titles', '칭호 전부 획득'], ['traits', '특성 전부 최대'], ['items', '아이템 전부 지급'], ['perms', '시스템 기능 해금'], ['cosmetics', '테마·칭호 해금'], ['npcs', 'NPC 호감도 최대'], ['daily', '일일 퀘스트 초기화'], ['weekly', '주간 퀘스트 초기화'], ['main', '메인 한 단계 넘기기'], ['tsfree', '다음 TS 무료'], ['urgent', '돌발 퀘스트 발생']]
       .map(x => '<button class="btn sm" data-act="adm-self" data-k="' + x[0] + '">' + x[1] + '</button>').join('') +
     '</div></div>';
   return win('관리자 콘솔', '소유자 인증됨', '<p class="note">' + (window.ALTERA_SB ? '이 창은 관리자로 등록된 계정에서 명령어와 비밀번호를 모두 맞춰야 열립니다. 사이트에 접속한 모든 플레이어의 기록이 서버에 쌓입니다.' : '이 창은 앱 소유자 계정에서 명령어와 비밀번호를 모두 맞춰야 열립니다. 다른 사람의 기록은 편집 권한으로 초대받아 로그인한 상태로 플레이한 경우에만 쌓이고, 공개 링크로 들어온 사람은 여기 보이지 않습니다.') + '</p><div class="row"><button class="btn sm" data-act="adm-pw">비밀번호 변경</button><button class="btn sm danger" data-act="adm-lock">잠그기</button></div>', 'admin', 'ADMIN') +
@@ -3085,12 +3239,29 @@ const ACT = {
     const q = S.sub[+d.i]; if (!q || q.done) return;
     q.done = true; finishQuest(q.t, 'sub', q); commit();
   },
+  'urgent-done': () => {
+    const U = S.urgent; if (!U || U.state !== 'open') return;
+    const q = URGENT_BY[U.id]; if (!q) { S.urgent = null; commit(); return; }
+    if (Date.now() > U.until) { checkUrgent(); commit(); return; }
+    U.state = 'done';
+    S.stats.urgent = (S.stats.urgent || 0) + 1;
+    S.urgentNext = Date.now() + urgentGap();
+    finishQuest(q.t, 'urgent', q);
+    commit();
+  },
+  'urgent-skip': () => {
+    const U = S.urgent; if (!U || U.state !== 'open') return;
+    U.state = 'skip';
+    S.urgentNext = Date.now() + urgentGap();
+    sys(['돌발 퀘스트 포기', '다음 신호를 기다립니다']);
+    commit();
+  },
   'main-claim': () => {
     const m = MAIN[S.mainIdx]; if (!m || !m.ok(S)) return;
     S.mainIdx++; S.stats.quests++;
     grant(m.p, m.e * expMult(), ['메인 퀘스트 완료', '▶ ' + m.t]);
-    if (S.mainIdx === 10) sys(['메인 스토리 1장 완료', '2장이 개방되었습니다'], 'ALTERA');
-    if (S.mainIdx >= MAIN.length) sys(['메인 스토리 2장 완료', '다음 장은 아직 열리지 않았습니다'], 'ALTERA');
+    if (S.mainIdx >= MAIN.length) sys(['메인 스토리 ' + Math.ceil(MAIN.length / 10) + '장 완료', '다음 장은 아직 열리지 않았습니다'], 'ALTERA');
+    else if (S.mainIdx % 10 === 0) sys(['메인 스토리 ' + (S.mainIdx / 10) + '장 완료', (S.mainIdx / 10 + 1) + '장이 개방되었습니다'], 'ALTERA');
     commit();
   },
   gen: () => generateSub(),
@@ -3337,14 +3508,16 @@ function start(data) {
   initCapabilities().catch(() => {}).then(() => {
     const a = S.tutorialDone && dailyCheckIn();
     const b = S.tutorialDone && checkNight();
-    if (a || b) commit();
+    const u = checkUrgent();
+    if (a || b || u) commit();
   });
   setInterval(() => {
     const changed = ensurePeriods();
     const c = dailyCheckIn();
     const night = checkNight();
-    if (changed || c || night) commit();
-  }, 60000);
+    const urg = checkUrgent();
+    if (changed || c || night || urg) commit();
+  }, 30000);
 }
 try { const hot = window.claude && window.claude.hot; if (hot && typeof hot.snapshot === 'function') hot.snapshot(() => ({ S, tab: tab === 'admin' ? 'status' : tab })); } catch (e) {}
 const hot = window.claude && window.claude.hot;

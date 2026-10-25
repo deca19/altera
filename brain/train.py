@@ -6,7 +6,8 @@ import torch, torch.nn as nn, torch.nn.functional as F
 torch.manual_seed(1); random.seed(1); np.random.seed(1)
 D = int(sys.argv[1]) if len(sys.argv) > 1 else 4096
 E = int(sys.argv[2]) if len(sys.argv) > 2 else 48
-H = 64
+import os
+H = int(os.environ.get("H", "64"))
 EPOCHS = int(sys.argv[3]) if len(sys.argv) > 3 else 25
 
 CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ'

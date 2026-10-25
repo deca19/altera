@@ -244,6 +244,8 @@ b{font-weight:700}
 .msg{max-width:86%;padding:9px 12px;border-radius:6px;font-size:14px;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
 .msg .who{display:block;font-family:var(--f-sys);font-size:11px;color:var(--dim);margin-bottom:2px}
 .msg.n{justify-self:start;background:var(--panel-2);border:1px solid var(--line-2)}
+.msg .rep-b{display:block;margin-top:6px;background:none;border:0;padding:0;color:var(--dim);font-size:11px;text-decoration:underline;cursor:pointer;font-family:var(--f-sys)}
+.msg .rep{display:block;margin-top:6px;color:var(--dim);font-size:11px;font-family:var(--f-sys)}
 .msg.u{justify-self:end;background:var(--accent-soft);border:1px solid var(--accent)}
 .chat-in{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:end}
 .typing{color:var(--faint);font-family:var(--f-sys)}
@@ -1323,7 +1325,7 @@ function fresh() {
     daily: { date: '', list: [] }, weekly: { key: '', list: [] }, sub: [], mainIdx: 0, mainNotified: -1,
     hidden: {}, ach: {}, flags: {}, changes: [], log: [], boost: false, charm: false, tsFree: true, tutorialDone: false,
     npcs: [], tsNames: [], streak: { last: '', n: 0 }, inboxSeen: {}, noticeSeen: 0, eventSeen: 0,
-    story: { idx: 0, base: {}, ch: {}, ending: '' }, npcEvent: null, urgent: null, urgentNext: 0,
+    story: { idx: 0, base: {}, ch: {}, ending: '' }, npcEvent: null, urgent: null, urgentNext: 0, fb: [],
     ops: {}, opDay: {}, opCount: {}, oplog: [], world: {}, luckDay: '', chatAff: {},
     stats: { quests: 0, daily: 0, weekly: 0, ts: 0, selfTs: 0, buys: 0, spent: 0, earned: 0, reverts: 0, perfect: 0, ops: 0, chats: 0, urgent: 0 }
   };
@@ -1335,7 +1337,7 @@ function migrate(o) {
   s.stats = Object.assign(fresh().stats, o.stats || {});
   s.streak = Object.assign(fresh().streak, o.streak || {});
   ['traits', 'inv', 'perm', 'hidden', 'ach', 'flags', 'looks', 'inboxSeen', 'ops', 'opDay', 'opCount', 'world', 'chatAff'].forEach(k => { if (!s[k] || typeof s[k] !== 'object' || Array.isArray(s[k])) s[k] = {}; });
-  ['titles', 'changes', 'log', 'sub', 'skins', 'npcs', 'tsNames', 'oplog'].forEach(k => { if (!Array.isArray(s[k])) s[k] = []; });
+  ['titles', 'changes', 'log', 'sub', 'skins', 'npcs', 'tsNames', 'oplog', 'fb'].forEach(k => { if (!Array.isArray(s[k])) s[k] = []; });
   if (!s.skins.includes('base')) s.skins.unshift('base');
   s.story = Object.assign({ idx: 0, base: {}, ch: {}, ending: '' }, o.story && typeof o.story === 'object' ? o.story : {});
   if (!s.story.base || typeof s.story.base !== 'object') s.story.base = {};
@@ -1420,7 +1422,7 @@ function summary() {
   return {
     name: S.name || '미등록', level: S.level, points: S.points, exp: S.exp, gender: S.gender, title: S.title || '',
     quests: S.stats.quests, ts: S.stats.ts, npcs: S.npcs.length, hidden: hiddenCount(S), mainIdx: S.mainIdx, streak: S.streak.n,
-    ops: S.stats.ops, chats: S.stats.chats,
+    ops: S.stats.ops, chats: S.stats.chats, fb: (S.fb || []).slice(-20),
     recent: S.log.slice(0, 15).map(l => ({ t: l.t, m: String(l.m).slice(0, 140) })), updatedAt: S.savedAt
   };
 }
@@ -2436,8 +2438,56 @@ const L = {
 };
 const FOLLOW = [['요즘 뭐 하고 지내?', '요즘 뭐 하고 지내세요?', 'day'], ['너는 무슨 음식 좋아해?', '어떤 음식 좋아하세요?', 'food'], ['너 취미가 뭐야?', '취미가 뭐예요?', 'hobby'], ['밥은 먹었어?', '식사는 하셨어요?', 'ate'], ['오늘 기분은 어때?', '오늘 기분은 어떠세요?', 'mood'], ['요즘 듣는 노래 있어?', '요즘 듣는 노래 있으세요?', 't:music'], ['주말엔 보통 뭐 해?', '주말엔 보통 뭐 하세요?', 'day'], ['요즘 재밌게 본 거 있어?', '요즘 재밌게 보신 거 있어요?', 't:video']];
 const DIALECT = [['진짜', '참말로'], ['정말', '참말로'], ['너무', '억수로'], ['뭐 해', '뭐 하노'], ['왜?', '와?'], ['괜찮아', '괜찮다'], ['알았어', '알았다'], ['그래?', '그렇나?']];
+/* 대사 추가: 같은 말 반복을 줄인다 */
+const L_MORE = {
+  greet: {
+    low: [['어, 왔어?', '아, 오셨어요?'], ['응. 무슨 일이야?', '네. 무슨 일이세요?']],
+    mid: [['오, {u}! 마침 심심했는데 잘 왔다.', '오, 마침 심심했는데 잘 오셨어요.'], ['왔네! 오늘은 무슨 얘기 해 줄 거야?', '오셨네요! 오늘은 무슨 얘기 해 주실 거예요?', 'day'], ['안녕! 밥은 먹고 왔어?', '안녕하세요! 식사는 하고 오셨어요?', 'ate']],
+    high: [['{u}! 오늘 하루 어땠는지 다 말해 줘.', '오늘 하루 어떠셨는지 다 말해 주세요.', 'day'], ['왔구나! 아까부터 너 생각하고 있었어.', '오셨네요! 아까부터 생각하고 있었어요.'], ['드디어 왔다. 기다렸잖아.', '드디어 오셨네요. 기다렸어요.']]
+  },
+  bye: {
+    low: [['응, 가 봐.', '네, 가 보세요.']],
+    mid: [['응, 조심히 가. 다음에 또 얘기하자!', '네, 조심히 가세요. 다음에 또 얘기해요!'], ['가는구나. 오늘 얘기 재밌었어.', '가시는군요. 오늘 얘기 재밌었어요.']],
+    high: [['벌써? 시간 진짜 빨리 간다. 내일 꼭 와.', '벌써요? 시간 정말 빨리 가네요. 내일 꼭 오세요.'], ['응, 조심히 가. 도착하면 연락해.', '네, 조심히 가세요. 도착하시면 연락 주세요.']]
+  },
+  night: [['잘 자. 오늘도 고생 많았어.', '안녕히 주무세요. 오늘도 고생 많으셨어요.'], ['응, 폰 그만 보고 바로 자. 굿밤!', '네, 폰 그만 보시고 바로 주무세요.'], ['좋은 꿈 꾸고 내일 또 얘기하자.', '좋은 꿈 꾸시고 내일 또 얘기해요.']],
+  thanks: [['에이, 우리 사이에 뭘.', '에이, 별말씀을요.'], ['도움이 됐다니 다행이다.', '도움이 됐다니 다행이에요.'], ['고맙다는 말 들으니까 기분 좋네.', '고맙다는 말 들으니까 기분 좋네요.']],
+  sorry: [['나도 별로 신경 안 썼어. 진짜 괜찮아.', '저도 별로 신경 안 썼어요. 정말 괜찮아요.'], ['사과해 줘서 고마워. 이제 다 풀렸어.', '사과해 주셔서 고마워요. 이제 다 풀렸어요.']],
+  ack: [['좋아.', '좋아요.'], ['응응.', '네네.'], ['알겠어.', '알겠어요.']],
+  ack_advice: [['그래, 너라면 잘할 거야.', '네, 잘하실 거예요.'], ['응. 무리하지는 말고.', '네. 무리하지는 마시고요.']],
+  a_pos: [['오, 잘됐다!', '오, 잘됐네요!'], ['그거 좋은데? 나까지 기분 좋아진다.', '그거 좋네요. 저까지 기분 좋아져요.']],
+  a_neg: [['에구... 왜, 무슨 일 있었어?', '에구... 무슨 일 있으셨어요?', 'why'], ['그랬구나. 괜찮아?', '그러셨구나. 괜찮으세요?', 'why']],
+  a_why: [['말해 줘서 고마워. 그럴 땐 누구라도 힘들었을 거야.', '말해 주셔서 고마워요. 그럴 땐 누구라도 힘들었을 거예요.'], ['그 얘기 들으니까 나도 속상하다. 오늘은 네 편이야.', '그 얘기 들으니까 저도 속상하네요. 오늘은 그쪽 편이에요.']],
+  a_yes: [['그치? 나도 그렇게 생각했어.', '그렇죠? 저도 그렇게 생각했어요.'], ['역시 통했다.', '역시 통했네요.']],
+  a_no: [['그래? 내가 잘못 짚었네.', '그래요? 제가 잘못 짚었네요.'], ['아 그렇구나, 알겠어.', '아 그렇군요, 알겠어요.']],
+  a_more: [['오, 그런 일이 있었구나. 신기하다.', '오, 그런 일이 있으셨구나. 신기하네요.'], ['그 다음엔 어떻게 됐어?', '그 다음엔 어떻게 됐어요?', 'more']],
+  a_day: [['그랬구나! 그 얘기 좀 더 듣고 싶다.', '그러셨구나! 그 얘기 좀 더 듣고 싶어요.', 'more'], ['오늘도 바빴구나. 수고했어.', '오늘도 바쁘셨구나. 수고하셨어요.']],
+  laugh: [['ㅋㅋ 너 웃는 거 처음 본 것 같아.', '웃으시는 거 처음 본 것 같아요.'], ['나도 웃음 난다 ㅋㅋ', '저도 웃음이 나네요.']],
+  surprise: [['나도 처음엔 안 믿겼어.', '저도 처음엔 안 믿겼어요.'], ['진짜라니까 ㅋㅋ', '진짜라니까요.']],
+  call: [['응, 듣고 있어.', '네, 듣고 있어요.', 'call'], ['왜, 무슨 일?', '왜요, 무슨 일이에요?', 'call']],
+  reflect: [['{kw}? 그거 좀 더 얘기해 줘.', '{kw}요? 그거 좀 더 얘기해 주세요.', 'more'], ['아, {kw}. 그래서 어떻게 됐는데?', '아, {kw}. 그래서 어떻게 됐어요?', 'more']],
+  filler: [['오, 그렇구나.', '오, 그렇군요.'], ['응응, 계속 말해 봐.', '네, 계속 말씀해 주세요.'], ['흠, 재밌네.', '흠, 재밌네요.']],
+  question: [['음... 어려운 질문이다. 너라면 어떻게 할 것 같아?', '음... 어려운 질문이네요. 그쪽이라면 어떻게 하실 것 같아요?', 'opinion']],
+  meh: [['무난한 하루도 괜찮지. 그런 날이 쌓이는 거니까.', '무난한 하루도 괜찮죠. 그런 날이 쌓이는 거니까요.']],
+  insult: [['미안, 내가 말을 잘 못 알아들었나 봐. 다시 말해 줄래?', '죄송해요, 제가 잘 못 알아들었나 봐요. 다시 말해 주실래요?', 'call']],
+};
+const FEEL_MORE = {
+  sad: [['오늘은 무리하지 말고 좋아하는 거 하나만 하자. 무슨 일 있었는지 말해 줄래?', '오늘은 무리하지 마시고 좋아하는 거 하나만 하세요. 무슨 일 있었는지 말해 주실래요?', 'why']],
+  angry: [['완전 화날 만했겠다. 일단 물 한 잔 마셔. 무슨 일이야?', '정말 화나실 만했겠어요. 일단 물 한 잔 드세요. 무슨 일이에요?', 'why']],
+  tired: [['오늘 정말 고생했어. 씻고 바로 누워.', '오늘 정말 고생하셨어요. 씻고 바로 누우세요.']],
+  bored: [['심심하면 퀴즈 하나 낼까? 아니면 끝말잇기?', '심심하시면 퀴즈 하나 낼까요? 아니면 끝말잇기요?', 'game']],
+  hungry: [['배고프면 예민해지잖아. 냉장고부터 열어 봐.', '배고프면 예민해지잖아요. 냉장고부터 열어 보세요.']],
+  sick: [['많이 아파? 무리하지 말고 오늘은 꼭 쉬어. 심하면 어른한테 말하고 병원 가.', '많이 아프세요? 무리하지 마시고 오늘은 꼭 쉬세요. 심하면 병원 가세요.']],
+  lonely: [['외로울 땐 나한테 말 걸어. 언제든 들어 줄게.', '외로우실 땐 저한테 말 걸어 주세요. 언제든 들어 드릴게요.']],
+  nervous: [['긴장되는 건 당연해. 숨 크게 세 번 쉬어 봐. 넌 준비한 만큼 할 수 있어.', '긴장되는 건 당연해요. 숨 크게 세 번 쉬어 보세요. 준비한 만큼 하실 수 있어요.']],
+  happy: [['와, 진짜? 좋은 일 생기면 나한테 제일 먼저 말해 줘야 해!', '와, 정말요? 좋은 일 생기면 저한테 제일 먼저 말해 주세요!', 'why_happy']],
+};
+const FOLLOW_MORE = [['요즘 제일 재밌는 게 뭐야?', '요즘 제일 재밌는 게 뭐예요?', 'more'], ['요즘 고민 같은 거 있어?', '요즘 고민 같은 거 있으세요?', 'more'], ['내일은 뭐 할 거야?', '내일은 뭐 하실 거예요?', 'day'], ['최근에 웃겼던 일 있어?', '최근에 웃겼던 일 있어요?', 'more']];
+Object.keys(L_MORE).forEach(k => { const v = L_MORE[k]; if (!L[k]) { L[k] = v; return; } if (Array.isArray(L[k])) L[k] = L[k].concat(v); else Object.keys(v).forEach(t => { L[k][t] = (L[k][t] || []).concat(v[t]); }); });
+FEEL.forEach(fe => { if (FEEL_MORE[fe.k]) fe.l = fe.l.concat(FEEL_MORE[fe.k]); });
+FOLLOW.push(...FOLLOW_MORE);
 /* 문장 분석 */
-const RE_CRISIS = /(죽고\s*싶|자살|자해|사라지고\s*싶|살기\s*싫|죽어\s*버리|없어지고\s*싶|(살아갈|살|사는)\s*이유(가|를)?\s*(없|모르))/;
+const RE_CRISIS = /(죽고\s*싶|자살|자해|사라지고\s*싶|살기\s*싫|죽어\s*버리|없어지고\s*싶|(살아갈|살|사는)\s*이유(가|를)?\s*(없|모르)|내가\s*없으면\s*(다들|모두|다)\s*(편|행복))/;
 const RE_LEWD = /(섹스|야한|야해|벗어|벗겨|벗고|가슴|엉덩|몸매|만져|핥|자지|보지|성기|흥분|침대|같이\s*자|키스|뽀뽀|스킨십|안아\s*줘|껴안|사귀|사귈|연애|데이트|결혼|애인|여친|남친|사랑해|(너를|널|당신을|니가|너|당신)\s*(정말|진짜|많이|너무|엄청)?\s*(좋아해|좋아한다|사랑))/;
 function analyze(text, n) {
   const raw = String(text).trim();
@@ -2667,7 +2717,7 @@ function npcReply(n, text) {
   let B = null;
   try { B = brainPredict(text); } catch (e) { B = null; }
   const snap = JSON.stringify(chatMeta(n.id));
-  if (B && ((B.intent === 'crisis' && B.p >= 0.85) || (B.intent === 'lewd' && B.p >= 0.8)) && !RE_CRISIS.test(String(text).toLowerCase())) {
+  if (B && ((B.intent === 'crisis' && B.p >= 0.75) || (B.intent === 'lewd' && B.p >= 0.8)) && !RE_CRISIS.test(String(text).toLowerCase())) {
     if (B.intent === 'crisis') npcCrisisFlag = true;
     return npcCore(n, CANON[B.intent], B, text).out;
   }
@@ -3757,14 +3807,16 @@ function viewChat() {
   const top = '<div class="row"><button class="btn sm ghost" data-act="tab" data-tab="npc">‹ NPC 목록</button></div>';
   if (!n) return top + win('대화', '', '<div class="empty">대화할 NPC를 고르십시오</div>');
   const log = Array.isArray(CHATS[n.id]) ? CHATS[n.id] : [];
-  const msgs = log.map(m => '<div class="msg ' + (m.r === 'u' ? 'u' : 'n') + '"><span class="who">' + esc(m.r === 'u' ? (S.name || '나') : n.name) + '</span>' + esc(m.t) + '</div>').join('') +
+  let lastN = -1; log.forEach((m, i) => { if (m.r === 'n') lastN = i; });
+  const msgs = log.map((m, i) => '<div class="msg ' + (m.r === 'u' ? 'u' : 'n') + '"><span class="who">' + esc(m.r === 'u' ? (S.name || '나') : n.name) + '</span>' + esc(m.t) +
+    (m.r === 'n' ? (m.rep ? '<span class="rep">어색해요 · 전달됨</span>' : i === lastN && !chatBusy ? '<button class="rep-b" data-act="chat-report" data-i="' + i + '">어색해요</button>' : '') : '') + '</div>').join('') +
     (chatBusy ? '<div class="msg n"><span class="who">' + esc(n.name) + '</span><span class="typing">입력 중…</span></div>' : '');
   const head = '<div class="npc-h"><span class="nm">' + esc(n.name) + ' <span class="badge">' + n.gender + '</span></span><span class="st">' + affStage(n.aff || 0) + ' · ' + (n.aff || 0) + '</span></div>' +
     (n.pers || n.speech ? '<div class="q-d">' + esc([n.pers, n.speech].filter(Boolean).join(' · ')) + '</div>' : '');
   const input = '<div class="chat-in"><textarea class="textarea" id="chat-input" rows="2" maxlength="300" placeholder="' + esc(n.name) + '에게 할 말" style="min-height:52px">' + esc(chatDraft) + '</textarea>' +
     (chatBusy ? '<button class="btn" data-act="chat-stop">중지</button>' : '<button class="btn primary" data-act="chat-send">보내기</button>') + '</div>' +
     '<div class="row" style="justify-content:flex-end"><button class="btn sm ghost" data-act="chat-clear">대화 지우기</button></div>' +
-    '<p class="note">ALTERA 내장 대화 엔진이 이 NPC의 성격, 말투, 호감도, 오늘의 현실에 맞춰 대답합니다. 외부 AI 없이 이 기기 안에서만 동작하고, 대화와 NPC가 기억한 취향은 이 기기에 저장됩니다.</p>';
+    '<p class="note">대답이 어색하면 말풍선 아래 <b>어색해요</b>를 눌러 주세요. 그 한 줄(내 말과 NPC 대답)이 제작자에게 전달되어 다음 학습에 쓰입니다.</p><p class="note">ALTERA 내장 대화 엔진이 이 NPC의 성격, 말투, 호감도, 오늘의 현실에 맞춰 대답합니다. 외부 AI 없이 이 기기 안에서만 동작하고, 대화와 NPC가 기억한 취향은 이 기기에 저장됩니다.</p>';
   return top + win('대화', '오늘 호감도 +' + chatAffToday(n) + ' / 5', head + '<div class="chat" id="chat-box">' + (msgs || '<div class="empty">' + esc(n.name) + '에게 먼저 말을 걸어 보십시오</div>') + '</div>' + input);
 }
 function viewTitles() {
@@ -3784,6 +3836,12 @@ function viewTitles() {
   });
   if (custom.length) out += win('특별 칭호', custom.length + '개', '<div class="tagset">' + custom.map(t => '<span>' + esc(t) + '</span>').join('') + '</div>');
   return out;
+}
+function adminFeedback() {
+  const out = [];
+  adminPlayers.forEach(p => (Array.isArray(p.fb) ? p.fb : []).forEach(f => { if (f && f.n) out.push({ who: p.name || '이름 없음', u: String(f.u || ''), n: String(f.n || ''), at: f.at || 0 }); }));
+  if (!adminPlayers.length) (S.fb || []).forEach(f => out.push({ who: S.name || '나', u: f.u, n: f.n, at: f.at }));
+  return out.sort((a, b) => b.at - a.at);
 }
 function viewAdmin() {
   if (!adminUnlocked) return win('접근 불가', '', '<div class="empty">인식할 수 없는 화면입니다</div>');
@@ -3834,6 +3892,7 @@ function viewAdmin() {
       '<div class="field"><label for="adm-ev-label">이벤트 이름</label><input class="input" id="adm-ev-label" maxlength="30" placeholder="예: 주말 2배 이벤트" value="' + esc(admDraft['adm-ev-label'] || '') + '"></div>' +
       '<div class="row"><button class="btn sm primary" data-act="adm-event">이벤트 시작</button><button class="btn sm ghost" data-act="adm-event-off">이벤트 종료</button></div>', 'admin', 'ADMIN') +
     win('전체 공지', '', notice + '<div class="field"><label for="adm-notice">공지 내용</label><textarea class="textarea" id="adm-notice" maxlength="300" placeholder="모든 플레이어에게 [ALTERA] 공지로 표시됩니다">' + esc(admDraft['adm-notice'] || '') + '</textarea></div><div class="row"><button class="btn sm primary" data-act="adm-notice">공지 보내기</button><button class="btn sm ghost" data-act="adm-notice-off">공지 내리기</button></div>', 'admin', 'ADMIN') +
+    win('어색한 NPC 대답', adminFeedback().length + '건', (adminFeedback().length ? '<div class="log">' + adminFeedback().slice(0, 50).map(f => '<div class="l"><span class="tm">' + esc(String(f.who).slice(0, 10)) + '</span><span class="tx">' + esc(f.u) + ' → ' + esc(f.n) + '</span></div>').join('') + '</div>' : '<div class="empty">아직 전달된 대답이 없습니다</div>') + '<p class="note">플레이어가 대화에서 "어색해요"를 누른 내용입니다. 복사해서 학습 데이터에 넣으면 NPC가 그런 말을 더 잘 알아듣게 됩니다.</p><button class="btn sm" data-act="adm-fb-copy" style="justify-self:start">학습용으로 복사</button>', 'admin', 'ADMIN') +
     win('내 계정 제어', '', self, 'admin', 'ADMIN') +
     win('관리 기록', adminLog.length + '건', adminLog.length ? '<div class="log">' + adminLog.slice(0, 30).map(l => '<div class="l"><span class="tm">' + clock(l.t) + '</span><span class="tx">' + esc(l.m) + '</span></div>').join('') + '</div>' : '<div class="empty">아직 기록이 없습니다</div>', 'admin', 'ADMIN');
 }
@@ -3933,6 +3992,24 @@ const ACT = {
   'npc-chat': d => { chatNpcId = d.id; chatDraft = ''; go('chat'); setTimeout(() => { const t = $('#chat-input'); if (t) t.focus({ preventScroll: true }); }, 60); },
   'chat-send': () => sendChat(),
   'chat-stop': () => { if (chatTimer) { clearTimeout(chatTimer); chatTimer = null; } chatBusy = false; render(); },
+  'chat-report': d => {
+    const n = S.npcs.find(x => x.id === chatNpcId); if (!n) return;
+    const log = CHATS[n.id] || []; const i = +d.i; const m = log[i];
+    if (!m || m.r !== 'n' || m.rep) return;
+    let u = ''; for (let k = i - 1; k >= 0; k--) { if (log[k].r === 'u') { u = log[k].t; break; } }
+    m.rep = true; saveChats();
+    S.fb = (S.fb || []).concat([{ u: String(u).slice(0, 140), n: String(m.t).slice(0, 140), at: Date.now() }]).slice(-40);
+    sys(['어색한 대답 전달 완료', '다음 학습에 반영됩니다']);
+    commit();
+  },
+  'adm-fb-copy': async () => {
+    const rows = adminFeedback().map(f => ({ u: f.u, n: f.n }));
+    const text = JSON.stringify(rows, null, 1);
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { ok = false; }
+    if (ok) sys(['복사 완료', rows.length + '건', '학습 데이터로 보내 주세요'], 'ADMIN');
+    else await modal({ title: '학습용 데이터', html: '<textarea class="textarea" style="min-height:220px" readonly>' + esc(text) + '</textarea>', actions: [{ label: '닫기', value: true, primary: true }] });
+  },
   'chat-clear': async () => {
     const n = S.npcs.find(x => x.id === chatNpcId); if (!n) return;
     const r = await modal({ title: n.name + '와(과)의 대화를 지울까요?', html: '<p>이 기기에 저장된 대화 내용이 사라집니다. 호감도는 그대로입니다.</p>', actions: [{ label: '취소', value: false }, { label: '지우기', value: true, primary: true }] });

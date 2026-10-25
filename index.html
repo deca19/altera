@@ -345,6 +345,7 @@ b{font-weight:700}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js"></script>
 <script src="config.js"></script>
+<script src="npc-brain.js" async></script>
 <script>
 /* ALTERA server bridge: on a self-hosted copy (no claude.ai runtime) this maps the app's storage, identity
    and presence calls onto Supabase. Inside a claude.ai artifact it stays dormant. */
@@ -2213,7 +2214,7 @@ function chatMeta(id) {
   m.ev = Array.isArray(m.ev) ? m.ev : [];
   return m;
 }
-const KW_STOP = new Set(['나', '너', '저', '오늘', '진짜', '그냥', '근데', '그래서', '정말', '요즘', '뭐', '왜', '좀', '그거', '이거', '저거', '그래', '응', '아니', '우리', '나도', '너도', '혹시', '완전', '너무', '많이', '지금', '내일', '어제', '그런', '이런', '하는', '있어', '없어', '했어', '해서', '그리고', '아까', '이제', '같이', '제일', '엄청', '되게', '약간', '조금', '아직', '벌써', '다시', '계속', '맨날', '그게', '이게', '저게', '뭔가', '어떻게', '왜냐면', '하고', '싶어', '거야', '건데', '그렇게', '이렇게', '대박', '근데요', '있잖아']);
+const KW_STOP = new Set(['나', '너', '저', '오늘', '진짜', '그냥', '근데', '그래서', '정말', '요즘', '뭐', '왜', '좀', '그거', '이거', '저거', '그래', '응', '아니', '우리', '나도', '너도', '혹시', '완전', '너무', '많이', '지금', '내일', '어제', '그런', '이런', '하는', '있어', '없어', '했어', '해서', '그리고', '아까', '이제', '같이', '제일', '엄청', '되게', '약간', '조금', '아직', '벌써', '다시', '계속', '맨날', '그게', '이게', '저게', '뭔가', '어떻게', '왜냐면', '하고', '싶어', '거야', '건데', '그렇게', '이렇게', '대박', '근데요', '있잖아', '그저', '그냥저냥', '방금', '아까도']);
 function extractKw(text) {
   const toks = String(text).replace(/[^가-힣a-zA-Z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
   let best = '';
@@ -2343,7 +2344,7 @@ const FEEL = [
   { k: 'angry', re: /(스트레스|짜증|빡치|빡쳐|화나|화가\s*나|열받|억울)/, l: [['왜, 누가 그랬어? 얘기해 봐.', '왜요, 누가 그랬어요? 얘기해 주세요.', 'why'], ['스트레스 받을 땐 일단 숨 한 번 크게 쉬어. 그리고 나한테 다 털어놔.', '스트레스 받으실 땐 숨 한 번 크게 쉬세요. 그리고 저한테 털어놓으세요.', 'why']] },
   { k: 'tired', re: /(피곤|졸려|졸리|잠\s*와|지쳤|지친|힘이\s*없|기운이\s*없)/, l: [['오늘 많이 무리했나 보다. 남은 건 내일 하고 일찍 자.', '오늘 많이 무리하셨나 봐요. 남은 건 내일 하고 일찍 주무세요.'], ['피곤할 땐 물 한 잔 마시고 10분만 눈 감고 있어. 생각보다 효과 있어.', '피곤할 땐 물 한 잔 드시고 10분만 눈 감고 계세요. 생각보다 효과 있어요.']] },
   { k: 'bored', re: /(심심|지루|할\s*게\s*없|할\s*거\s*없|노잼)/, l: [['심심하면 나랑 놀자. 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 골라.', '심심하시면 저랑 놀아요. 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 골라 주세요.', 'game'], ['그럼 나랑 끝말잇기 할래?', '그럼 저랑 끝말잇기 하실래요?', 'inv:wordchain']] },
-  { k: 'hungry', re: /(배고|배\s*고파|출출|허기)/, l: [['얼른 뭐라도 먹어. 지금이면 {menu} 어때?', '얼른 뭐라도 드세요. 지금이면 {menu} 어떠세요?'], ['배고프면 아무것도 안 돼. 간단하게라도 먹고 와.', '배고프면 아무것도 안 돼요. 간단하게라도 드시고 오세요.']] },
+  { k: 'hungry', re: /(배고|배\s*고파|배\s*(너무|엄청|진짜)?\s*고프|출출|허기)/, l: [['얼른 뭐라도 먹어. 지금이면 {menu} 어때?', '얼른 뭐라도 드세요. 지금이면 {menu} 어떠세요?'], ['배고프면 아무것도 안 돼. 간단하게라도 먹고 와.', '배고프면 아무것도 안 돼요. 간단하게라도 드시고 오세요.']] },
   { k: 'sick', re: /(아파|아프|감기|열\s*나|두통|머리\s*아|배\s*아|몸살|기침|콧물)/, l: [['괜찮아? 어디가 아픈데? 많이 아프면 꼭 병원 가 보고, 오늘은 무조건 쉬어.', '괜찮으세요? 어디가 아프세요? 많이 아프면 꼭 병원 가 보시고, 오늘은 무조건 쉬세요.'], ['아프지 마... 따뜻한 물 마시고 푹 자. 내일 괜찮은지 꼭 말해 줘.', '아프지 마세요... 따뜻한 물 드시고 푹 주무세요. 내일 괜찮은지 꼭 알려 주세요.']] },
   { k: 'lonely', re: /(외로|외롭|혼자\s*있|쓸쓸|아무도\s*없)/, l: [['나 여기 있잖아. 오늘은 내가 말동무 해 줄게. 무슨 얘기 할까?', '저 여기 있잖아요. 오늘은 제가 말동무 해 드릴게요. 무슨 얘기 할까요?'], ['그런 날 있지. 그럴 땐 좋아하는 사람한테 먼저 연락해 보는 것도 좋아. 일단 나랑 얘기하자.', '그런 날 있죠. 그럴 땐 좋아하는 사람한테 먼저 연락해 보는 것도 좋아요. 일단 저랑 얘기해요.']] },
   { k: 'nervous', re: /(긴장|떨려|떨린|불안|걱정돼|걱정이야|걱정된)/, l: [['뭐가 걱정인데? 말하면 좀 가벼워질 거야.', '뭐가 걱정이세요? 말하면 좀 가벼워질 거예요.', 'why'], ['떨리는 건 그만큼 잘하고 싶어서야. 넌 할 수 있어.', '떨리는 건 그만큼 잘하고 싶어서예요. 할 수 있어요.']] },
@@ -2409,6 +2410,7 @@ const L = {
   a_happy: [['와, 진짜 잘됐다! 축하해.', '와, 정말 잘됐네요! 축하해요.'], ['대박, 나까지 신난다!', '대박, 저까지 신나네요!']],
   a_ate_yes: [['잘했어. 뭐 먹었어?', '잘하셨어요. 뭐 드셨어요?', 't:food']],
   a_ate_no: [['얼른 뭐라도 먹어. 지금이면 {menu} 어때?', '얼른 뭐라도 드세요. 지금이면 {menu} 어떠세요?', 'adv']],
+  meh: [['그럭저럭이었구나. 그런 날도 있지. 내일은 좀 더 좋을 거야.', '그럭저럭이셨구나. 그런 날도 있죠. 내일은 좀 더 좋을 거예요.'], ['평범한 하루도 나쁘지 않지. 고생했어.', '평범한 하루도 나쁘지 않죠. 고생하셨어요.']],
   a_pos: [['다행이다. 좋은 날이네.', '다행이에요. 좋은 날이네요.'], ['좋네. 그 기분 오래 갔으면 좋겠다.', '좋네요. 그 기분 오래 갔으면 좋겠어요.']],
   a_neg: [['그래? 무슨 일 있었어?', '그래요? 무슨 일 있으셨어요?', 'why'], ['그렇구나... 그럴 때도 있지. 뭐 때문에?', '그렇군요... 그럴 때도 있죠. 뭐 때문에요?', 'why']],
   a_yes: [['역시! 그럴 줄 알았어.', '역시요! 그럴 줄 알았어요.'], ['오, 그렇구나.', '오, 그렇군요.']],
@@ -2579,7 +2581,111 @@ function startGame(k, meta, P) {
 }
 function gameKey(s) { return /끝말/.test(s) ? 'word' : /가위\s*바위\s*보/.test(s) ? 'rps' : /(숫자\s*(맞|게임|놀이)|업\s*다운|업다운)/.test(s) ? 'num' : /(퀴즈|수수께끼|넌센스|난센스)/.test(s) ? 'quiz' : ''; }
 /* 본체 */
+/* ---------- NPC 두뇌: 직접 학습한 작은 신경망 (npc-brain.js 의 가중치를 브라우저에서 실행) ---------- */
+const BRAIN = { m: null, failed: false };
+const BR_CHO = 'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ', BR_JUNG = 'ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ';
+function brainLoad() {
+  if (BRAIN.m || BRAIN.failed) return BRAIN.m;
+  const B = window.NPC_BRAIN;
+  if (!B) return null;
+  try {
+    const dec = (b64, T) => { const s = atob(b64); const u = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) u[i] = s.charCodeAt(i); return new T(u.buffer); };
+    const m = { D: B.D, E: B.E, H: B.H, labels: B.labels, sent: B.sent };
+    ['emb', 'w1', 'w2', 'wi', 'ws'].forEach(k => { m[k] = dec(B[k], Int8Array); });
+    ['embS', 'w1s', 'w2s', 'wis', 'wss', 'b1', 'b2', 'bi', 'bs'].forEach(k => { m[k] = dec(B[k], Float32Array); });
+    BRAIN.m = m;
+  } catch (e) { BRAIN.failed = true; }
+  return BRAIN.m;
+}
+function brJamo(s) {
+  let o = '';
+  for (const ch of s) {
+    const c = ch.charCodeAt(0);
+    if (c >= 0xAC00 && c <= 0xD7A3) { const i = c - 0xAC00; o += BR_CHO[Math.floor(i / 588)] + BR_JUNG[Math.floor((i % 588) / 28)]; const jg = i % 28; if (jg) o += String.fromCharCode(0x11A7 + jg); }
+    else o += ch;
+  }
+  return o;
+}
+function brFnv(s) { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h >>> 0; }
+function brFeats(t, D) {
+  const s = String(t).toLowerCase().replace(/(.)\1{3,}/g, '$1$1$1').replace(/\s+/g, ' ').trim();
+  const f = new Set();
+  const s0 = '^' + s.split(' ').join('') + '$';
+  for (let n = 1; n <= 3; n++) for (let i = 0; i + n <= s0.length; i++) f.add('c' + s0.slice(i, i + n));
+  s.split(' ').forEach(w => { w = w.replace(/[?!.~,]+$/, ''); if (w) f.add('w' + w); });
+  const j = '^' + brJamo(s.split(' ').join('')) + '$';
+  for (let n = 2; n <= 4; n++) for (let i = 0; i + n <= j.length; i++) f.add('j' + j.slice(i, i + n));
+  const idx = new Set();
+  f.forEach(x => idx.add(brFnv(x) % D));
+  return Array.from(idx);
+}
+function brDense(W, S, b, x, rows, cols, relu) {
+  const out = new Float32Array(rows);
+  for (let r = 0; r < rows; r++) {
+    let acc = 0; const o = r * cols;
+    for (let c = 0; c < cols; c++) acc += W[o + c] * x[c];
+    let v = acc * S[r] + b[r];
+    out[r] = relu && v < 0 ? 0 : v;
+  }
+  return out;
+}
+function brSoftmax(z) { let mx = -Infinity; for (const v of z) mx = Math.max(mx, v); let s = 0; const e = Array.from(z, v => { const q = Math.exp(v - mx); s += q; return q; }); return e.map(v => v / s); }
+function brainPredict(text) {
+  const m = brainLoad();
+  if (!m || !String(text || '').trim()) return null;
+  const idx = brFeats(text, m.D);
+  if (!idx.length) return null;
+  const x = new Float32Array(m.E);
+  idx.forEach(i => { const sc = m.embS[i], o = i * m.E; for (let k = 0; k < m.E; k++) x[k] += m.emb[o + k] * sc; });
+  for (let k = 0; k < m.E; k++) x[k] /= idx.length;
+  const h1 = brDense(m.w1, m.w1s, m.b1, x, m.H, m.E, true);
+  const h2 = brDense(m.w2, m.w2s, m.b2, h1, m.H, m.H, true);
+  const pi = brSoftmax(brDense(m.wi, m.wis, m.bi, h2, m.labels.length, m.H, false));
+  const ps = brSoftmax(brDense(m.ws, m.wss, m.bs, h2, 3, m.H, false));
+  let bi = 0; pi.forEach((v, i) => { if (v > pi[bi]) bi = i; });
+  let bs = 0; ps.forEach((v, i) => { if (v > ps[bs]) bs = i; });
+  return { intent: m.labels[bi], p: pi[bi], sent: m.sent[bs], sp: ps[bs] };
+}
+const CANON = {
+  greet: '안녕', bye: '잘 가', night: '잘 자', thanks: '고마워', sorry: '미안', call: '야', ack: '알았어', yes: '응', no: '아니', wow: '헐', laugh: 'ㅋㅋㅋ', cry: 'ㅠㅠ',
+  what: '뭐?', why: '왜', idk: '몰라', insult: '너 바보', compliment: '너 멋있다',
+  ask_name: '너 이름이 뭐야?', ask_age: '너 몇 살이야?', ask_live: '너 어디 살아?', ask_family: '너 가족 있어?', ask_dream: '너 꿈이 뭐야?', ask_mbti: '너 mbti 뭐야?',
+  ask_bday: '너 생일 언제야?', ask_pet: '너 반려동물 키워?', ask_fav: '너 뭐 좋아해?', ask_hobby: '너 취미가 뭐야?', ask_doing: '너 뭐해?', ask_ate: '너 밥 먹었어?',
+  ask_today: '너 오늘 뭐 했어?', ask_mood: '너 기분 어때?', ask_time: '몇 시야?', ask_date: '오늘 며칠이야?', fortune: '오늘 운세 알려줘',
+  rec_food: '뭐 먹지?', rec_music: '노래 추천해줘', rec_movie: '영화 추천해줘', play: '같이 놀자', opinion_me: '나 어때?', crush: '좋아하는 사람 있어?', advice: '어떡하지',
+  feel_sad: '나 우울해', feel_angry: '나 짜증나', feel_tired: '나 피곤해', feel_bored: '나 심심해', feel_hungry: '나 배고파', feel_sick: '나 아파', feel_lonely: '나 외로워',
+  feel_nervous: '나 떨려', feel_happy: '나 기분 좋아', topic_exam: '나 시험', topic_study: '나 공부', topic_school: '학교', topic_food: '밥', topic_game: '게임', topic_music: '노래',
+  topic_video: '영화', topic_sport: '운동', topic_friend: '친구', topic_family: '가족', topic_animal: '동물', topic_sleep: '잠', topic_shop: '쇼핑', topic_future: '진로',
+  weather: '날씨', blame: '내 잘못이야', lewd: '데이트', crisis: '죽고 싶어'
+};
+let npcCrisisFlag = false;
+/* 신경망이 아주 확신하는데 규칙이 엉뚱한 쪽으로 답했을 때 신경망을 따른다 */
+const OVR = { feel_sad: /^(feel_sad|a_why|cry|a_blame)/, feel_angry: /^feel_angry/, feel_tired: /^feel_tired/, feel_bored: /^feel_bored/, feel_hungry: /^(feel_hungry|a_ate_no)/, feel_sick: /^feel_sick/, feel_lonely: /^feel_lonely/, feel_nervous: /^(feel_nervous|soon_)/, feel_happy: /^(feel_happy|a_happy|a_pos)/, blame: /^a_blame/, opinion_me: /^opinion_me/, insult: /^insult/, rec_food: /^$/, rec_music: /^$/, rec_movie: /^$/, play: /^$/, ask_today: /^$/, ask_mood: /^mood/, ask_doing: /^now/ };
+/* 규칙으로 먼저 답해 보고, 못 알아들은 말은 신경망이 의도를 읽어서 다시 답한다 */
 function npcReply(n, text) {
+  npcCrisisFlag = false;
+  let B = null;
+  try { B = brainPredict(text); } catch (e) { B = null; }
+  const snap = JSON.stringify(chatMeta(n.id));
+  if (B && ((B.intent === 'crisis' && B.p >= 0.85) || (B.intent === 'lewd' && B.p >= 0.8)) && !RE_CRISIS.test(String(text).toLowerCase())) {
+    if (B.intent === 'crisis') npcCrisisFlag = true;
+    return npcCore(n, CANON[B.intent], B, text).out;
+  }
+  const r = npcCore(n, text, B, null);
+  const soft = (r.via === 'answer' && /^(a_opinion|a_more|a_day|a_yes|a_no|a_food|a_hobby|ilike|a_pos)$/.test(r.key)) || (r.via === 'topic' && /^(rec_|play|ask_)/.test(B ? B.intent : '')) || r.via === 'weak' || r.via === 'sent' || (r.via === 'answer' && /^ans_/.test(r.key) && B && /^(feel_|blame)/.test(B.intent) && !((TOPIC_BY[r.key.split('_')[1]] || { re: /$^/ }).re.test(String(text).toLowerCase())));
+  const ovr = B && B.p >= 0.85 && OVR[B.intent] && soft && !OVR[B.intent].test(r.key);
+  if ((r.generic && B && B.p >= 0.5 && CANON[B.intent]) || ovr) {
+    let canon = CANON[B.intent];
+    if (B.intent.indexOf('topic_') === 0) {
+      const tk = B.intent.slice(6), T0 = TOPIC_BY[tk], st = JSON.parse(snap);
+      const lc = String(text).toLowerCase();
+      if (!(T0 && (T0.re.test(lc) || entityIn(tk, lc)))) canon = st.topic && TOPIC_BY[st.topic] && B.p >= 0.6 ? CANON['topic_' + st.topic] : '';
+    }
+    if (canon) { CHATS.__meta[n.id] = JSON.parse(snap); return npcCore(n, canon, B, text).out; }
+  }
+  return r.out;
+}
+function npcCore(n, text, B, orig) {
   const P = persona(n);
   const meta = chatMeta(n.id);
   const D = npcDay(n, P);
@@ -2588,6 +2694,8 @@ function npcReply(n, text) {
   const f = P.formal;
   const T = (b, j) => f ? j : b;
   const A = analyze(text, n);
+  if (orig) { const A0 = analyze(orig, n); A.pos = A.pos || A0.pos; A.neg = A.neg || A0.neg; }
+  if (B && !A.pos && !A.neg && B.sp >= 0.75 && B.sent !== 'neu') { if (B.sent === 'pos') A.pos = true; else A.neg = true; }
   const rules = OPS.filter(o => o.cat === 'world' && S.ops[o.id]).map(o => o.name);
   const userTitle = S.gender === '여성' ? (n.gender === '남성' ? '오빠' : '언니') : (n.gender === '남성' ? '형' : '누나');
   const sibs = n.gender === '여성' ? ['오빠 하나 있어', '언니 하나 있어', '남동생 하나 있어', '여동생 하나 있어', '외동이야'] : ['형 하나 있어', '누나 하나 있어', '남동생 하나 있어', '여동생 하나 있어', '외동이야'];
@@ -2597,7 +2705,7 @@ function npcReply(n, text) {
     music: P.music, movie: P.movie, animal: P.animal, subject: P.subject, hsubject: P.hsubject, game: P.game, place: P.place,
     ate: D.ate, did: D.did, didf: yo(D.did), menu: rnd(MENU(h)),
     sib: sibs[P.sib], sibf: yo(sibs[P.sib]),
-    kw: extractKw(A.raw), fact: meta.facts.length ? rnd(meta.facts) : '', rule: rules.length ? rnd(rules) : '', last: meta.lastOut || '', ev: '',
+    kw: extractKw(orig || A.raw), fact: meta.facts.length ? rnd(meta.facts) : '', rule: rules.length ? rnd(rules) : '', last: meta.lastOut || '', ev: '',
     petline: P.pet ? '나는 집에서 ' + J(P.pet, '을', '를') + ' 키워. 엄청 귀여워.' : '나는 동물 키우고 싶은데 집에서 반대해. 그래서 길고양이만 봐.',
     petlinef: P.pet ? '저는 집에서 ' + J(P.pet, '을', '를') + ' 키워요. 엄청 귀여워요.' : '저는 동물 키우고 싶은데 집에서 반대해요. 그래서 길고양이만 봐요.',
     dreamline: P.dream === '아직 못 정함' ? '아직 꿈을 못 정했어. 그래서 이것저것 해 보는 중이야.' : J(P.dream, '이', '가') + ' 되고 싶어. 아직은 막연하지만.',
@@ -2607,9 +2715,10 @@ function npcReply(n, text) {
   const remember = kw => { if (kw && kw.length <= 12 && !meta.facts.includes(kw)) { meta.facts.push(kw); if (meta.facts.length > 8) meta.facts.shift(); } };
   const addEv = k => { if (!meta.ev.some(e => e.k === k && e.d === today())) { meta.ev.push({ k, d: today(), done: false }); if (meta.ev.length > 6) meta.ev.shift(); } };
   const prevQ = meta.lastQ || '';
+  const topic0 = meta.topic || '';
   const prevAct = meta.lastAct || '';
   meta.lastQ = ''; meta.lastAct = '';
-  let line = null, key = '', extra = '', noFollow = false, raw = '';
+  let line = null, key = '', extra = '', noFollow = false, raw = '', via = 'rule';
   const say = (k, list) => { key = k; line = pickLine(k, list, meta, ctx); };
   const tiered = o => o[tier] || o.mid;
   const tsChange = S.changes.find(c => c.npcId === n.id && !c.rev);
@@ -2643,10 +2752,11 @@ function npcReply(n, text) {
   const RE_ACK2 = /^(응|어|그래|넵|네|ㅇㅇ)?\s*(그래야겠다|그래야지|그럴게|해\s*볼게|노력해\s*볼게|그렇게\s*할게|명심할게|알았어|알겠어)[.!~ ]*$/;
   const RE_ACK = /^(알았어|알겠어|알겠다|알았다|ㅇㅋ|오케이|오키|ok|okay|알겠습니다|알겠어요|넵|네네|응응|웅웅|그래그래)$/;
   const feelHit = FEEL.find(x => x.re.test(A.s));
+  const request = /(추천|해\s*줘|알려\s*줘|골라\s*줘|하자|할래|ㄱㄱ|해\s*봐|해\s*주라)/.test(A.s);
   const social = /(미안|죄송|고마|감사|땡큐|안녕|잘\s*자|잘\s*가|바이|ㅂㅂ|사랑해|바보|멍청|꺼져|닥쳐)/.test(A.s);
-  if (prevQ && prevQ !== 'call' && !A.q && !social && !RE_ACK.test(A.bare) && !RE_ACK2.test(A.bare) && !RE_WOW.test(A.bare) && !(feelHit && !['why', 'mood', 'recall', 'why_happy'].includes(prevQ))) {
+  if (prevQ && prevQ !== 'call' && !A.q && !social && !request && !RE_ACK.test(A.bare) && !RE_ACK2.test(A.bare) && !RE_WOW.test(A.bare) && !(feelHit && !['why', 'mood', 'recall', 'why_happy'].includes(prevQ))) {
     const r = answerTo(prevQ);
-    if (r) return finish();
+    if (r) { via = 'answer'; return finish(); }
   }
   // 7. "너는?" 되묻기
   if (/^(너는|넌|너도|니는|님은|그쪽은|당신은|너는요)$/.test(A.bare) || /^(너는|넌|너도)\s*(어때|뭐|어떤데)/.test(A.bare)) {
@@ -2673,6 +2783,7 @@ function npcReply(n, text) {
   if (/^(그냥|걍|그냥요)$/.test(A.bare)) { say('just', L.just); return finish(); }
   if (/^(몰라|모르겠어|모르겠다|글쎄|모름)$/.test(A.bare)) { ctx.follow = fillLine(T(...pickLine('follow', FOLLOW, meta, ctx).slice(0, 2)), ctx); say('idk', L.idk); return finish(); }
   if (A.no && A.short && !prevQ) { say('a_no', L.a_no); extra = 'follow'; return finish(); }
+  if (/^(그저\s*그랬|그냥\s*그랬|그럭저럭|보통이었|평범했|나쁘지\s*않았|쏘쏘|소소했)/.test(A.bare)) { say('meh', L.meh); return finish(); }
   // 9. 인사·감사·사과
   if (/(잘\s*가|잘\s*자|바이|ㅂㅂ|안녕히|들어가|이만\s*갈|다음에\s*봐|나\s*갈게|간다|굿나잇|잘게|자러\s*갈|잘래)/.test(A.s) && A.s.length < 16) { if (/(잘\s*자|굿나잇|잘게|자러|잘래|자야지|주무세요)/.test(A.s)) say('night', L.night); else say('bye', tiered(L.bye)); return finish(true); }
   if (/^(안녕|하이|ㅎㅇ|헬로|hello|hi|좋은\s*아침|굿모닝|반가)/.test(A.s) || (A.s.indexOf('안녕') >= 0 && A.s.length < 10)) {
@@ -2682,7 +2793,7 @@ function npcReply(n, text) {
   }
   if (/(고마|감사|땡큐|thx|thank)/.test(A.s)) { say('thanks', L.thanks); return finish(); }
   if (/(미안|죄송|사과할게)/.test(A.s)) { say('sorry', L.sorry); return finish(); }
-  if (/(바보|멍청|꺼져|닥쳐|못생|너\s*싫어|싫어\s*너|병신|미친|너\s*짜증|노잼이야|재미없어\s*너|답답해\s*너|너\s*답답)/.test(A.s)) { say('insult', L.insult); return finish(true); }
+  if (/(못\s*알아들|말귀|말이\s*안\s*통|바보|멍청|꺼져|닥쳐|못생|너\s*싫어|싫어\s*너|병신|미친|너\s*짜증|노잼이야|재미없어\s*너|답답해\s*너|너\s*답답)/.test(A.s)) { say('insult', L.insult); return finish(true); }
   // 10. 질문 응답
   if (/(몇\s*시|지금\s*시간|시간\s*몇)/.test(A.s)) { const d = new Date(); raw = T('지금 ' + d.getHours() + '시 ' + d.getMinutes() + '분이야.', '지금 ' + d.getHours() + '시 ' + d.getMinutes() + '분이에요.') + (d.getHours() >= 23 || d.getHours() < 5 ? T(' 늦었다, 얼른 자.', ' 늦었네요, 얼른 주무세요.') : ''); return finish(true); }
   if (/(며칠|몇\s*월|날짜|무슨\s*요일|요일이)/.test(A.s)) { const d = new Date(); raw = T('오늘은 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + '일월화수목금토'[d.getDay()] + '요일이야.', '오늘은 ' + (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + '일월화수목금토'[d.getDay()] + '요일이에요.'); return finish(true); }
@@ -2696,10 +2807,10 @@ function npcReply(n, text) {
     return finish(true);
   }
   if (/(추천|뭐\s*먹지|뭐\s*먹을까|메뉴|뭐\s*하지|뭐\s*할까|뭐\s*볼까|뭐\s*들을까)/.test(A.s)) {
-    if (/(먹|메뉴|음식|밥)/.test(A.s)) raw = T('지금이면 ' + J(ctx.menu, '이', '가') + ' 딱이야. 아니면 내 최애 ' + P.food + '도 추천.', '지금이면 ' + J(ctx.menu, '이', '가') + ' 딱이에요. 아니면 제 최애 ' + P.food + '도 추천해요.');
+    if (/(먹|메뉴|음식|밥|야식|간식|디저트|점심|저녁|아침)/.test(A.s)) raw = T('지금이면 ' + J(ctx.menu, '이', '가') + ' 딱이야. 아니면 내 최애 ' + P.food + '도 추천.', '지금이면 ' + J(ctx.menu, '이', '가') + ' 딱이에요. 아니면 제 최애 ' + P.food + '도 추천해요.');
     else if (/(노래|음악|들)/.test(A.s)) raw = T(P.music + ' 들어 봐. 기분 전환엔 그만이야.', P.music + ' 들어 보세요. 기분 전환엔 그만이에요.');
     else if (/(영화|볼|드라마|애니)/.test(A.s)) raw = T(P.movie + ' 어때? 나는 그런 거 좋아하거든.', P.movie + ' 어떠세요? 저는 그런 거 좋아하거든요.');
-    else { raw = T('심심하면 나랑 놀자. 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 골라.', '심심하시면 저랑 놀아요. 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 골라 주세요.'); meta.lastQ = 'game'; return finish(true, true); }
+    else { via = 'weak'; raw = T('심심하면 나랑 놀자. 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 골라.', '심심하시면 저랑 놀아요. 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 골라 주세요.'); meta.lastQ = 'game'; return finish(true, true); }
     return finish(true);
   }
   if (/(놀자|놀아\s*줘|뭐\s*하고\s*놀|게임\s*하자|심심해\s*놀)/.test(A.s)) { raw = T('좋아! 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 뭐 할래?', '좋아요! 끝말잇기, 가위바위보, 숫자 맞히기, 넌센스 퀴즈 중에 뭐 하실래요?'); meta.lastQ = 'game'; return finish(true, true); }
@@ -2720,8 +2831,8 @@ function npcReply(n, text) {
     if (/(mbti|엠비티아이)/.test(A.s)) { raw = T('나 ' + P.mbti + '. 맞는 것 같기도 하고 아닌 것 같기도 해. 너는?', '저 ' + P.mbti + '예요. 맞는 것 같기도 하고요. 그쪽은요?'); meta.lastQ = 'more'; return finish(true, true); }
     if (/생일/.test(A.s) && !/축하/.test(A.s)) { raw = T('내 생일? ' + P.bm + '월 ' + P.bd + '일. 기억해 줄 거지?', '제 생일이요? ' + P.bm + '월 ' + P.bd + '일이에요. 기억해 주실 거죠?'); return finish(true); }
     if (/(반려|키우는|애완)/.test(A.s)) { raw = T(ctx.petline, ctx.petlinef); return finish(true); }
-    const dyl = A.raw.match(/^(?:너|넌|너는|니는|혹시)?\s*(.{1,12})\s*(?:좋아해|좋아하니|좋아하냐|좋아해요|좋아함)\s*\??$/);
-    if (dyl && dyl[1] && !/^(나|날|나를|저|저를|너|널)$/.test(dyl[1].trim()) && !/뭐/.test(dyl[1])) {
+    const dyl = A.raw.match(/^(?:너는|니는|넌|너|혹시)?\s*(.{1,12})\s*(?:좋아해|좋아하니|좋아하냐|좋아해요|좋아함)\s*\??$/);
+    if (dyl && dyl[1] && !/^(나|날|나를|저|저를|너|널)$/.test(dyl[1].trim()) && !/(뭐|무슨|어떤|어느|누구)/.test(dyl[1])) {
       const thing = stripJ(dyl[1].trim().replace(/^(너|넌|너는|혹시)\s+/, '').replace(/([가-힣]{2,})(은|는)$/, '$1'));
       const favs = [P.food, P.hobby, P.color, P.season, P.music, P.movie, P.animal, P.subject, P.game];
       const v = favs.some(x => x && (x.indexOf(thing) >= 0 || thing.indexOf(x) >= 0)) ? 2 : P.dislike.indexOf(thing) >= 0 || thing === P.hsubject ? 0 : (hash(n.id + '|' + thing) % 3 === 0 ? 0 : 1);
@@ -2730,7 +2841,7 @@ function npcReply(n, text) {
       return finish(true, v !== 2);
     }
     if (/(싫어하는|싫은\s*거|제일\s*싫)/.test(A.s)) { raw = T(J(P.dislike, '이', '가') + ' 제일 싫어. 생각만 해도 별로야.', J(P.dislike, '이', '가') + ' 제일 싫어요. 생각만 해도 별로예요.'); return finish(true); }
-    const fav = A.s.match(/(좋아하는|최애|제일\s*좋아하는)\s*(음식|색|색깔|계절|노래|음악|가수|장르|영화|동물|과목|게임|장소|곳)/) || (/뭐\s*좋아/.test(A.s) ? [0, 0, ''] : null);
+    const fav = A.s.match(/(좋아하는|최애|제일\s*좋아하는)\s*(음식|색|색깔|계절|노래|음악|가수|장르|영화|동물|과목|게임|장소|곳)/) || A.s.match(/(무슨|어떤)\s*(음식|색|색깔|계절|노래|음악|가수|장르|영화|동물|과목|게임|장소|곳)/) || (/뭐\s*좋아/.test(A.s) ? [0, 0, ''] : null);
     if (fav || /취미/.test(A.s)) {
       const w = fav ? fav[2] : '취미';
       const map = { 음식: P.food, 색: P.color, 색깔: P.color, 계절: P.season, 노래: P.music, 음악: P.music, 가수: P.music, 장르: P.music, 영화: P.movie, 동물: P.animal, 과목: P.subject, 게임: P.game, 장소: P.place, 곳: P.place, 취미: P.hobby };
@@ -2779,7 +2890,7 @@ function npcReply(n, text) {
   const tk = topicOf(A.s, meta.topic);
   if (tk) {
     const T0 = TOPIC_BY[tk];
-    meta.topic = tk;
+    meta.topic = tk; via = 'topic';
     if (tk === 'food') { const fd = foodIn(A.s); if (fd) ctx.kw = fd; }
     if (tk === 'exam') addEv('exam');
     if (A.q && A.toNpc) { say('npc_' + tk, T0.npc); return finish(); }
@@ -2793,6 +2904,12 @@ function npcReply(n, text) {
     if (T0.soon && /(내일|모레|다음\s*주|곧|이번\s*주)/.test(A.s)) { say('soon_' + tk, T0.soon); return finish(); }
     say('react_' + tk, T0.react); return finish();
   }
+  if (A.bare.length <= 10 && (A.pos !== A.neg) && !A.q) {
+    const T0 = meta.topic && TOPIC_BY[meta.topic];
+    const pl = T0 && (A.neg ? T0.ans.neg : (T0.ans.pos || T0.ans.any));
+    if (pl) { via = 'answer'; say('ans_' + meta.topic + (A.neg ? '_n' : '_p'), pl); return finish(); }
+    via = 'sent'; say(A.neg ? 'a_neg' : 'a_pos', A.neg ? L.a_neg : L.a_pos); return finish();
+  }
   // 16. 일반 질문
   if (A.q && A.toNpc) { say('question', L.question); return finish(); }
   if (A.q) { say('question', L.question); return finish(); }
@@ -2802,7 +2919,7 @@ function npcReply(n, text) {
 
   function answerTo(pq) {
     if (pq === 'ate') { if (A.no) say('a_ate_no', L.a_ate_no); else if (A.yes || /(먹었|먹음)/.test(A.s)) { const fd = foodIn(A.s); if (fd) { ctx.kw = fd; meta.topic = 'food'; say('a_food', L.a_food); } else say('a_ate_yes', L.a_ate_yes); } else return false; return true; }
-    if (pq === 'food') { const fd = foodIn(A.s) || ctx.kw; if (!fd) return false; ctx.kw = fd; remember(fd); meta.topic = 'food'; say('a_food', L.a_food); return true; }
+    if (pq === 'food') { const ot = topicOf(A.s); if (ot && ot !== 'food') return false; const fd = foodIn(A.s) || (A.bare.length <= 8 ? ctx.kw : ''); if (!fd) return false; ctx.kw = fd; remember(fd); meta.topic = 'food'; say('a_food', L.a_food); return true; }
     if (pq === 'hobby') { const ph = phraseOf(A.raw); if (ph) ctx.kw = ph; if (!ctx.kw) return false; remember(ctx.kw); meta.hobbyKnown = true; say('a_hobby', L.a_hobby); return true; }
     if (pq === 'like') { if (!ctx.kw) return false; remember(ctx.kw); say('ilike', L.ilike); return true; }
     if (pq === 'why' || pq === 'recall') {
@@ -2832,6 +2949,7 @@ function npcReply(n, text) {
     if (pq.indexOf('t:') === 0) {
       const tk2 = pq.slice(2) === 'gamewin' ? 'game' : pq.slice(2);
       const T0 = TOPIC_BY[tk2]; if (!T0) return false;
+      const other = topicOf(A.s); if (other && other !== tk2 && !(tk2 === 'game' && other === 'game')) return false;
       meta.topic = tk2;
       if (tk2 === 'food') { const fd = foodIn(A.s); if (fd) ctx.kw = fd; }
       if (pq === 't:gamewin') { if (A.yes || A.pos) { say('ans_game_p', T0.ans.pos); return true; } if (A.no || A.neg) { say('ans_game_n', T0.ans.neg); return true; } }
@@ -2871,7 +2989,8 @@ function npcReply(n, text) {
     else if (raw) { final = out; if (!f && P.dialect) DIALECT.forEach(d => { final = final.split(d[0]).join(d[1]); }); }
     else final = styleLine(out, P, sober);
     meta.lastOut = out.replace(/\s*\(.*?\)\s*$/, '').slice(0, 80);
-    return final;
+    if (meta.topic && (meta.topic !== topic0 || via === 'topic' || via === 'answer')) meta.tAge = 0; else if (meta.topic) { meta.tAge = (meta.tAge || 0) + 1; if (meta.tAge >= 4) { meta.topic = ''; meta.tAge = 0; } }
+    return { out: final, generic: key === 'reflect' || key === 'filler' || key === 'question', key, via };
   }
 }
 function chatAffToday(n) { const a = S.chatAff[n.id]; return a && a.d === today() ? a.c : 0; }
@@ -2891,7 +3010,7 @@ function sendChat() {
     const reply = npcReply(n, text);
     log.push({ r: 'n', t: reply, at: Date.now() });
     if (log.length > 60) log.splice(0, log.length - 60);
-    if (/(죽고\s*싶|자살|자해|사라지고\s*싶|살기\s*싫)/.test(text)) sys(['도움이 필요하다면', '자살예방 상담전화 109', '청소년 상담 1388 · 24시간']);
+    if (RE_CRISIS.test(text.toLowerCase()) || npcCrisisFlag) sys(['도움이 필요하다면', '자살예방 상담전화 109', '청소년 상담 1388 · 24시간']);
     S.stats.chats++;
     const t = today();
     const ca = S.chatAff[n.id] && S.chatAff[n.id].d === t ? S.chatAff[n.id] : (S.chatAff[n.id] = { d: t, c: 0 });

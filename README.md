@@ -16,6 +16,7 @@ GitHub (코드 보관)  ──push──▶  Netlify (사이트 배포, 올릴 �
 | `schema.sql` | DB 테이블과 보안 규칙(RLS) |
 | `netlify.toml` | Netlify 배포 설정 |
 | `netlify/functions/keepalive.mjs` | 6시간마다 서버를 깨워 두는 예약 함수 |
+| `npc-brain.js` | NPC가 말을 알아듣는 신경망 가중치 (학습 코드는 `brain/`) |
 
 ---
 
@@ -75,7 +76,7 @@ Supabase **Authentication → URL Configuration** 에서
 ## 참고
 
 - `config.js` 가 비어 있으면 서버 없이 그 기기에만 저장되는 모드로 동작한다.
-- NPC 대화와 상황 분석 퀘스트는 서버 없이 브라우저 안에서 돌아간다.
+- NPC 대화와 상황 분석 퀘스트는 서버 없이 브라우저 안에서 돌아간다. NPC 대화에는 직접 학습한 작은 신경망(`npc-brain.js`)이 쓰인다. 다시 학습하는 법은 `brain/README.md`.
 - Supabase 무료 프로젝트는 일주일쯤 요청이 없으면 일시 중지된다. 그래서 `netlify/functions/keepalive.mjs` 가 6시간마다 DB에 가벼운 조회를 보내 서버를 깨워 둔다. 동작 기록은 Netlify **Logs → Functions → keepalive** 에서 볼 수 있다. 그래도 멈췄다면 Supabase 대시보드에서 **Restore** 를 누르면 데이터 그대로 다시 켜진다(1년 안). 멈춤 없는 보장은 유료(Pro) 요금제뿐이다.
 - Supabase 기본 메일 발송은 양이 적게 제한되어 있다. 사용자가 많아지면 **Authentication → Emails → SMTP** 를 설정한다.
 - 앱에는 "진행 요약은 제작자가 볼 수 있다"는 안내가 표시된다. 공개 운영한다면 간단한 이용 안내를 따로 두는 게 좋다.

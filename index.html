@@ -315,6 +315,8 @@ b{font-weight:700}
 }
 .win.urgent{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent-soft)}
 .win.urgent .urgent-left{font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent)}
+.tfx{display:block;font-size:11.5px;color:var(--accent);margin-top:2px;line-height:1.4}
+.ac .tfx{grid-column:1/-1}
 </style>
 
 <header class="bar">
@@ -783,10 +785,10 @@ const SHOP = [
   { id: 's_scanner', cat: '시스템', kind: 'perm', name: '상황 분석 모듈', desc: '지금 상황에 맞춘 서브 퀘스트를 만든다', price: 200 },
   { id: 's_slot', cat: '시스템', kind: 'perm', name: '일일 퀘스트 슬롯 +1', desc: '매일 받는 일일 퀘스트가 4개가 된다', price: 400, req: 2 },
   { id: 's_bag', cat: '시스템', kind: 'bag', name: '인벤토리 슬롯 +4', desc: '가방 칸을 4개 늘린다 (최대 3회)', price: 200, max: 3 },
-  { id: 'c_watcher', cat: '칭호', kind: 'title', title: '관찰자', name: '칭호 · 관찰자', desc: '상태창에 표시되는 칭호', price: 100 },
-  { id: 'c_wander', cat: '칭호', kind: 'title', title: '방랑자', name: '칭호 · 방랑자', desc: '상태창에 표시되는 칭호', price: 200 },
-  { id: 'c_chosen', cat: '칭호', kind: 'title', title: '선택받은 자', name: '칭호 · 선택받은 자', desc: '상태창에 표시되는 칭호', price: 600, req: 4 },
-  { id: 'c_arch', cat: '칭호', kind: 'title', title: '현실 설계자', name: '칭호 · 현실 설계자', desc: '상태창에 표시되는 칭호', price: 1200, req: 8 },
+  { id: 'c_watcher', cat: '칭호', kind: 'title', title: '관찰자', name: '칭호 · 관찰자', desc: '장착 능력 · 퀘스트 완료 시 3% 확률로 포인트 상자', price: 100 },
+  { id: 'c_wander', cat: '칭호', kind: 'title', title: '방랑자', name: '칭호 · 방랑자', desc: '장착 능력 · 돌발 퀘스트 보상 +10% · 돌발 퀘스트 제한 시간 +5분', price: 200 },
+  { id: 'c_chosen', cat: '칭호', kind: 'title', title: '선택받은 자', name: '칭호 · 선택받은 자', desc: '장착 능력 · 퀘스트 포인트 +8% · 획득 EXP +5%', price: 600, req: 4 },
+  { id: 'c_arch', cat: '칭호', kind: 'title', title: '현실 설계자', name: '칭호 · 현실 설계자', desc: '장착 능력 · 모든 구매 비용 -5% · 현실 조작 비용 -12%', price: 1200, req: 8 },
   { id: 'u_base', cat: '테마', kind: 'skin', skin: 'base', sw: '#f1f3f8', name: '백색 신호', desc: '기본 흑백 화면', price: 0 },
   { id: 'u_deep', cat: '테마', kind: 'skin', skin: 'deep', sw: '#6fb6ff', name: '심해', desc: '시스템 강조색을 푸른빛으로', price: 250 },
   { id: 'u_crimson', cat: '테마', kind: 'skin', skin: 'crimson', sw: '#ff6b7f', name: '홍염', desc: '시스템 강조색을 붉은빛으로', price: 250 },
@@ -1247,6 +1249,68 @@ const TITLES = [
   { n: '현실 설계자', g: '상점', d: '상점 구매' },
 ];
 const TITLE_NAMES = new Set(TITLES.map(t => t.n));
+const TITLE_FX = {
+  // 성장
+  '새내기 사용자': { xp: 5 }, '견습 개변자': { xp: 8 }, '각성자': { xp: 10, lv: 10 }, '숙련자': { xp: 12, lv: 15 }, '초월자': { xp: 15, lv: 20 },
+  '상급 개변자': { xp: 18, lv: 25 }, '현실의 주인': { xp: 20, qp: 5 }, '시스템의 총아': { xp: 25, lv: 40 }, '이변의 중심': { xp: 28, qp: 10 }, '현실 그 자체': { all: 20 },
+  // 퀘스트
+  '첫걸음': { qp: 3 }, '성실한 사용자': { qp: 5 }, '퀘스트 헌터': { qp: 8 }, '퀘스트 수집가': { qp: 10 }, '퀘스트 장인': { qp: 12, luck: 3 },
+  '끝없는 의뢰': { qp: 15, luck: 5 }, '전설의 수행자': { qp: 20, xp: 10, luck: 5 }, '루틴 마스터': { dp: 10 }, '일상의 달인': { dp: 20 }, '매일의 기적': { dp: 30, luck: 3 },
+  '완벽주의자': { dp: 12, wp: 5 }, '빈틈없는 일주일': { dp: 18, wp: 10 }, '무결점': { dp: 25, wp: 20 }, '주간 정복자': { wp: 25 },
+  // 출석
+  '꾸준한 사람': { ck: 30 }, '습관의 주인': { ck: 50, xp: 3 }, '2주의 맹세': { ck: 80, xp: 5 }, '한 달의 기록': { ck: 100, qp: 5, xp: 5 }, '백일의 사용자': { ck: 150, qp: 10, xp: 10 },
+  // TS
+  '첫 번째 선택': { ts: 10 }, '개변자': { ts: 15 }, '경계를 넘는 자': { ts: 20 }, '경계 파괴자': { ts: 30 }, '다면 개변자': { ts: 20, aff: 10 }, '자기 개변자': { ts: 25 }, '복원가': { ts: 15, refund: 5 },
+  // 재화
+  '저축가': { shop: 3 }, '자산가': { shop: 5, qp: 3 }, '부호': { shop: 8, qp: 5 }, '큰손': { shop: 6 }, '대부호의 소비': { shop: 12 },
+  '수집가': { luck: 6 }, '색채의 주인': { look: 50 }, '특성 보유자': { shop: 5, xp: 5 }, '전설 각성': { shop: 10, xp: 10 },
+  // 관계
+  '첫 만남': { aff: 10 }, '인맥가': { aff: 15 }, '세계의 창조주': { aff: 25, xp: 5 }, '사교가': { aff: 15 }, '절친 메이커': { aff: 20 },
+  '신뢰의 상징': { aff: 30 }, '모두의 친구': { aff: 30, qp: 5 }, '말 걸기': { aff: 5 }, '수다쟁이': { aff: 12 }, '이야기꾼': { aff: 20, xp: 5 },
+  // 외형
+  '변신 입문': { look: 30 }, '변신술사': { look: 50, ts: 10 },
+  // 히든
+  '비밀 탐색자': { hid: 10 }, '비밀 수집가': { hid: 20 }, '진실에 다가선 자': { hid: 30, xp: 5 }, '심연을 본 자': { hid: 40, xp: 10 }, '모든 비밀의 주인': { all: 15, hid: 50 },
+  '올빼미': { night: 30 }, '비밀의 공유자': { aff: 25 }, '만물 개변자': { op: 15 }, '자정의 변이': { ts: 35 }, '거울 너머': { refund: 10 },
+  '무일푼': { shop: 15 }, '비 갠 뒤': { luck: 8 }, '수집광': { hid: 25, luck: 5 }, '완전체': { xp: 20, op: 10 },
+  // 현실 조작
+  '현실 조작 입문': { op: 5 }, '현실 조작자': { op: 10 }, '현실 건축가': { op: 15 }, '현실 개변의 신': { op: 25, refund: 10 }, '단련된 육체': { op: 8, xp: 5 },
+  '천의 얼굴': { look: 40, op: 5 }, '만능인': { xp: 12 }, '초감각자': { luck: 6 }, '행운아': { luck: 10 }, '날씨의 지배자': { op: 10, dp: 5 },
+  '사물 조율사': { op: 10, shop: 3 }, '공간 설계사': { op: 12 }, '시간 여행자': { ut: 10, up: 15 }, '기록 관리자': { refund: 8 }, '마음을 읽는 자': { aff: 20 },
+  '세계 개변자': { op: 20 }, '현실 편집자': { all: 10, op: 10 },
+  // 이야기
+  '첫 번째 사용자': { qp: 2, xp: 2 }, '1장의 주인공': { mp: 20 }, '2장의 주인공': { mp: 35, xp: 5 }, '신호의 추적자': { up: 20, ut: 5 },
+  '수호자': { aff: 20, qp: 10 }, '공모자': { op: 15, qp: 10 }, '고독한 파수꾼': { xp: 20, dp: 10 }, '단독 개변자': { ts: 30, op: 10 },
+  // 상점
+  '관찰자': { luck: 3 }, '방랑자': { up: 10, ut: 5 }, '선택받은 자': { qp: 8, xp: 5 }, '현실 설계자': { op: 12, shop: 5 },
+};
+const FX_LABEL = [
+  ['all', v => '모든 퀘스트 포인트·EXP +' + v + '%'],
+  ['qp', v => '퀘스트 포인트 +' + v + '%'],
+  ['dp', v => '일일 퀘스트 포인트 +' + v + '%'],
+  ['wp', v => '주간 퀘스트 포인트 +' + v + '%'],
+  ['mp', v => '메인 퀘스트 보상 +' + v + '%'],
+  ['up', v => '돌발 퀘스트 보상 +' + v + '%'],
+  ['ut', v => '돌발 퀘스트 제한 시간 +' + v + '분'],
+  ['night', v => '자정~새벽 4시 퀘스트 포인트 +' + v + '%'],
+  ['xp', v => '획득 EXP +' + v + '%'],
+  ['lv', v => '레벨 업 보너스 +' + v + '%'],
+  ['ck', v => '출석 보상 +' + v + '%'],
+  ['hid', v => '히든·업적 보상 +' + v + '%'],
+  ['luck', v => '퀘스트 완료 시 ' + v + '% 확률로 포인트 상자'],
+  ['shop', v => '모든 구매 비용 -' + v + '%'],
+  ['op', v => '현실 조작 비용 -' + v + '%'],
+  ['refund', v => '현실 조작 시 ' + v + '% 확률로 비용 환급'],
+  ['ts', v => 'TS 비용 -' + v + '%'],
+  ['look', v => '외형 편집 비용 -' + v + '%'],
+  ['aff', v => 'NPC 호감도 상승 +' + v + '%'],
+];
+function fxText(name) {
+  const fx = TITLE_FX[name];
+  if (!fx) return '';
+  return FX_LABEL.filter(l => fx[l[0]]).map(l => l[1](fx[l[0]])).join(' · ');
+}
+function tf(k) { const fx = S.title && TITLE_FX[S.title]; return (fx && fx[k]) || 0; }
 const TAB_LABEL = { status: '상태', quest: '퀘스트', ts: '조작', shop: '상점', bag: '가방', log: '로그', npc: 'NPC', admin: '관리자', chat: '대화', titles: '칭호' };
 
 /* ---------- state ---------- */
@@ -1525,6 +1589,11 @@ function pointMult(kind) {
   if (kind === 'weekly' && S.traits.t_focus) m += .3;
   if (S.luckDay === today()) m += .2;
   if (S.traits.t_editor) m += .25;
+  m += (tf('qp') + tf('all')) / 100;
+  if (kind === 'daily') m += tf('dp') / 100;
+  if (kind === 'weekly') m += tf('wp') / 100;
+  if (kind === 'urgent') m += tf('up') / 100;
+  if (tf('night') && new Date().getHours() < 4) m += tf('night') / 100;
   return m * eventMult();
 }
 function eventMult() { return globalEvent && globalEvent.until > Date.now() ? Math.min(5, Math.max(1, Number(globalEvent.mult) || 1)) : 1; }
@@ -1534,11 +1603,13 @@ function expMult() {
   const g = traitLv('t_growth');
   if (g) m += [0, .15, .25, .4][g];
   if (S.traits.t_editor) m += .25;
+  m += (tf('xp') + tf('all')) / 100;
   return m * eventMult();
 }
-function tsBase() { let c = 200; if (S.traits.t_affinity) c *= .5; if (S.traits.t_sync) c *= .8; return Math.round(c / 10) * 10; }
+function tsBase() { let c = 200; if (S.traits.t_affinity) c *= .5; if (S.traits.t_sync) c *= .8; c *= 1 - tf('ts') / 100; return Math.round(c / 10) * 10; }
 function tsCost() { return S.tsFree ? 0 : tsBase(); }
-function priceOf(p) { return S.traits.t_frugal && p > 0 ? Math.round(p * .9 / 10) * 10 : p; }
+function priceOf(p) { if (!(p > 0)) return p; let m = S.traits.t_frugal ? .9 : 1; m *= 1 - tf('shop') / 100; return m === 1 ? p : Math.round(p * m / 10) * 10; }
+function lookPrice() { return Math.round(priceOf(LOOK_COST) * (1 - tf('look') / 100) / 10) * 10; }
 function traitPrice(it, lv) { return priceOf(Math.round(it.price * Math.pow(1.8, lv) / 10) * 10); }
 
 function grant(p, e, src) {
@@ -1563,7 +1634,7 @@ const LEVEL_UNLOCKS = {
   25: '메인 퀘스트 3장 최종 조건 개방',
 };
 function levelUp(lv) {
-  const bonus = 50 * lv;
+  const bonus = Math.round(50 * lv * (1 + tf('lv') / 100));
   S.points += bonus; S.stats.earned += bonus;
   sys(['레벨 업', 'Lv.' + lv, '+' + fmt(bonus) + 'P']);
   if (LEVEL_UNLOCKS[lv]) sys(['해금', LEVEL_UNLOCKS[lv]]);
@@ -1578,7 +1649,7 @@ function unlockHidden(id) {
   const h = HIDDEN_BY[id];
   S.hidden[id] = Date.now();
   sys(['숨겨진 기능이 해금되었습니다', '▶ ' + h.t]);
-  grant(h.p, h.e, ['히든 퀘스트 완료']);
+  grant(h.p * (1 + tf('hid') / 100), h.e, ['히든 퀘스트 완료']);
   if (h.title) { addTitle(h.title); sys(['칭호 획득', h.title]); }
   return true;
 }
@@ -1589,7 +1660,7 @@ function checkAch() {
     S.ach[a.id] = Date.now(); any = true;
     sys(['업적 달성', '▶ ' + a.t, a.title ? '칭호 「' + a.title + '」' : '']);
     if (a.title) addTitle(a.title);
-    if (a.p) grant(a.p, 0, ['업적 보상']);
+    if (a.p) grant(a.p * (1 + tf('hid') / 100), 0, ['업적 보상']);
   }
   return any;
 }
@@ -1638,7 +1709,7 @@ function dailyCheckIn() {
   if (S.streak.last === t) return false;
   S.streak.n = S.streak.last === yesterday() ? S.streak.n + 1 : 1;
   S.streak.last = t;
-  const bonus = Math.min(100, 10 * S.streak.n);
+  const bonus = Math.round(Math.min(100, 10 * S.streak.n) * (1 + tf('ck') / 100));
   grant(bonus, 0, ['출석', S.streak.n + '일 연속']);
   genNpcEvent();
   if (Math.random() < 0.1) grant(200, 50, ['랜덤 이벤트', '시스템 오류로 보상이 두 번 지급되었다']);
@@ -1688,8 +1759,9 @@ function spawnUrgent(force) {
   const last = S.urgent && S.urgent.id;
   const pool = URGENT_POOL.filter(q => q.id !== last);
   const q = rnd(pool);
-  S.urgent = { id: q.id, at: now, until: now + q.m * 60000, state: 'open' };
-  sys(['돌발 퀘스트 발생', '▶ ' + q.t, q.m + '분 안에 완료'], 'ALTERA');
+  const mins = q.m + tf('ut');
+  S.urgent = { id: q.id, at: now, until: now + mins * 60000, state: 'open' };
+  sys(['돌발 퀘스트 발생', '▶ ' + q.t, mins + '분 안에 완료'], 'ALTERA');
   if (!force) log('돌발 퀘스트 발생 · ' + q.t);
   return true;
 }
@@ -1747,6 +1819,7 @@ function finishQuest(title, kind, base) {
   S.stats.quests++;
   grant(r.p, r.e, ['퀘스트 완료', '▶ ' + title]);
   luckRoll();
+  if (tf('luck') && Math.random() < tf('luck') / 100 && (S.inv.i_box || bagUsed() < S.slots)) { S.inv.i_box = (S.inv.i_box || 0) + 1; sys(['칭호 능력', '「' + S.title + '」', '포인트 상자 획득']); }
 }
 function checkPerfect() {
   if (S.daily.perfect || !S.daily.list.length || !S.daily.list.every(q => q.done)) return;
@@ -1889,12 +1962,12 @@ async function openLookEditor() {
   const diffCount = vals => LOOK_FIELDS.filter(f => String(vals[f.k] || '') !== String(S.looks[f.k] || '')).length;
   const r = await modal({
     title: '외형 편집',
-    html: '<p>' + (S.looksFree ? '첫 설정은 무료입니다.' : '바꾼 항목마다 ' + priceOf(LOOK_COST) + 'P가 듭니다.') + '</p><div class="look-grid">' + fieldHTML + '</div><div class="look-cost"><span id="lk-count">변경 0개</span><span id="lk-price"><b>0P</b></span></div>',
+    html: '<p>' + (S.looksFree ? '첫 설정은 무료입니다.' : '바꾼 항목마다 ' + lookPrice() + 'P가 듭니다.') + '</p><div class="look-grid">' + fieldHTML + '</div><div class="look-cost"><span id="lk-count">변경 0개</span><span id="lk-price"><b>0P</b></span></div>',
     actions: [{ label: '취소', value: false }, { label: '적용', value: true, primary: true }],
     mount: root => {
       const upd = () => {
         const n = diffCount(readVals(root));
-        const cost = S.looksFree ? 0 : n * priceOf(LOOK_COST);
+        const cost = S.looksFree ? 0 : n * lookPrice();
         $('#lk-count', root).textContent = '변경 ' + n + '개';
         $('#lk-price', root).innerHTML = '<b>' + (S.looksFree && n ? '무료' : fmt(cost) + 'P') + '</b>';
       };
@@ -1906,7 +1979,7 @@ async function openLookEditor() {
   const vals = r.data;
   const n = diffCount(vals);
   if (!n) return;
-  const cost = S.looksFree ? 0 : n * priceOf(LOOK_COST);
+  const cost = S.looksFree ? 0 : n * lookPrice();
   if (S.points < cost) { sys(['외형 편집 취소', '포인트 부족', '필요 ' + fmt(cost) + 'P', '차감 없음']); return; }
   S.points -= cost; S.stats.spent += cost;
   LOOK_FIELDS.forEach(f => { const v = vals[f.k]; if (v) S.looks[f.k] = f.range ? Number(v) : v; else delete S.looks[f.k]; });
@@ -1980,7 +2053,7 @@ async function deleteNPC(id) {
 }
 
 /* ---------- reality manipulation ---------- */
-function opPrice(op) { return priceOf(op.cost); }
+function opPrice(op) { const p = priceOf(op.cost); return tf('op') && p > 0 ? Math.round(p * (1 - tf('op') / 100) / 10) * 10 : p; }
 function opState(op) {
   if (S.level < op.lv) return { label: 'Lv.' + op.lv, locked: true };
   if (opIsOnce(op) && S.ops[op.id]) return { owned: true };
@@ -2068,6 +2141,7 @@ async function runOp(id) {
   if (!ok || !ok.v || S.points < st.price) return;
   opBusy = true;
   S.points -= st.price; S.stats.spent += st.price;
+  if (st.price > 0 && tf('refund') && Math.random() < tf('refund') / 100) { S.points += st.price; S.stats.spent -= st.price; sys(['칭호 능력', '「' + S.title + '」', '조작 비용 환급 +' + fmt(st.price) + 'P']); }
   await runSync(['대상 확인 | ' + tname, c.sync[0], c.sync[1] + ' | ' + op.name, c.sync[2], '현실 동기화 완료']);
   const prevWeather = S.world.weather;
   applyOpFx(op, target);
@@ -2409,6 +2483,7 @@ function storyChoose(k) {
 /* ---------- NPC events ---------- */
 function affChange(n, d) {
   if (!d) return;
+  if (d > 0 && tf('aff')) d = Math.max(1, Math.round(d * (1 + tf('aff') / 100)));
   n.aff = Math.max(0, Math.min(100, (n.aff || 0) + d));
   n.ms = n.ms || {};
   [[40, 100], [70, 200], [100, 400]].forEach(x => {
@@ -2853,7 +2928,7 @@ function viewStatus() {
     '<div class="rule" aria-hidden="true">' + RULE + '</div>' +
     '<div class="kv">' +
     '<span class="k">이름</span><span class="v">' + esc(S.name || '미등록') + '</span>' +
-    '<span class="k">칭호</span><span class="v">' + esc(S.title || '없음') + '</span>' +
+    '<span class="k">칭호</span><span class="v">' + esc(S.title || '없음') + (fxText(S.title) ? '<span class="tfx">' + esc(fxText(S.title)) + '</span>' : '') + '</span>' +
     '<span class="k">레벨</span><span class="v">Lv.' + S.level + '</span>' +
     '<span class="k">EXP</span><span class="v exp"><span>' + fmt(S.exp) + ' / ' + fmt(nd) + (S.boost ? ' · 부스터 대기' : '') + (S.charm ? ' · 부적 대기' : '') + '</span><span class="exp-track"><span class="exp-fill" style="width:' + pct + '%"></span></span></span>' +
     '<span class="k">포인트</span><span class="v">' + fmt(S.points) + 'P</span>' +
@@ -2872,8 +2947,8 @@ function viewStatus() {
     ? '<div class="s"><span class="tag">[' + l.tag + ']</span> ' + sysHTML(l.parts) + '</div>'
     : '<div class="u">' + esc(l.text) + '</div>').join('') : '<div class="empty">명령을 입력하십시오. 예: 상태창, 도움말</div>';
   const consoleWin = win('명령창', '', '<div class="console"><div class="con-lines" id="con-lines">' + lines + '</div><form class="con-form" id="cmd-form" autocomplete="off"><input class="input" id="cmd" maxlength="60" placeholder="상태창" value="' + esc(cmdDraft) + '" aria-label="명령 입력" enterkeyhint="send" autocomplete="off"><button class="btn primary" type="submit">입력</button></form></div>');
-  const titleOpts = '<option value="">없음</option>' + S.titles.map(t => '<option value="' + esc(t) + '"' + (t === S.title ? ' selected' : '') + '>' + esc(t) + '</option>').join('');
-  const titleWin = win('칭호', S.titles.filter(t => TITLE_NAMES.has(t)).length + ' / ' + TITLES.length, (S.titles.length ? '<div class="field"><label for="title-select">장착할 칭호</label><select class="select" id="title-select">' + titleOpts + '</select></div>' : '<div class="empty">아직 획득한 칭호가 없습니다</div>') + '<button class="btn sm ghost" data-act="tab" data-tab="titles" style="justify-self:start">칭호 도감 열기</button>');
+  const titleOpts = '<option value="">없음</option>' + S.titles.map(t => '<option value="' + esc(t) + '"' + (t === S.title ? ' selected' : '') + '>' + esc(t) + (fxText(t) ? ' — ' + esc(fxText(t)) : '') + '</option>').join('');
+  const titleWin = win('칭호', S.titles.filter(t => TITLE_NAMES.has(t)).length + ' / ' + TITLES.length, (S.titles.length ? '<div class="field"><label for="title-select">장착할 칭호</label><select class="select" id="title-select">' + titleOpts + '</select></div>' + (S.title ? '<p class="note">장착 능력 · ' + esc(fxText(S.title) || '없음') + '</p>' : '<p class="note">칭호마다 능력이 있습니다. 장착한 칭호 하나의 능력만 적용됩니다.</p>') : '<div class="empty">아직 획득한 칭호가 없습니다</div>') + '<button class="btn sm ghost" data-act="tab" data-tab="titles" style="justify-self:start">칭호 도감 열기</button>');
   const achWin = win('업적', Object.keys(S.ach).length + ' / ' + ACH.length, '<div class="ach">' + ACH.map(a => {
     const on = !!S.ach[a.id];
     const hide = a.hidden && !on;
@@ -3109,13 +3184,13 @@ function viewTitles() {
   const groups = Array.from(new Set(TITLES.map(t => t.g)));
   const custom = S.titles.filter(t => !TITLE_NAMES.has(t));
   let out = '<div class="row"><button class="btn sm ghost" data-act="tab" data-tab="status">‹ 상태로</button></div>' +
-    win('칭호 도감', owned + ' / ' + TITLES.length, '<div class="exp-track"><span class="exp-fill" style="display:block;width:' + Math.round(owned / TITLES.length * 100) + '%"></span></div><p class="note">장착 중 · ' + esc(S.title || '없음') + '</p>');
+    win('칭호 도감', owned + ' / ' + TITLES.length, '<div class="exp-track"><span class="exp-fill" style="display:block;width:' + Math.round(owned / TITLES.length * 100) + '%"></span></div><p class="note">장착 중 · ' + esc(S.title || '없음') + (fxText(S.title) ? ' (' + esc(fxText(S.title)) + ')' : '') + '</p>');
   groups.forEach(g => {
     const list = TITLES.filter(t => t.g === g);
     const have = list.filter(t => S.titles.includes(t.n)).length;
     out += win(g, have + ' / ' + list.length, '<div class="ach">' + list.map(t => {
       const on = S.titles.includes(t.n), hide = t.hide && !on;
-      return '<div class="ac' + (on ? '' : ' off') + '"><span class="t">' + (hide ? '???' : esc(t.n)) + '</span><span class="d">' + esc(hide ? '조건 비공개' : t.d) + '</span>' +
+      return '<div class="ac' + (on ? '' : ' off') + '"><span class="t">' + (hide ? '???' : esc(t.n)) + '</span><span class="d">' + esc(hide ? '조건 비공개' : t.d) + '</span>' + (hide ? '' : '<span class="tfx">' + esc(fxText(t.n)) + '</span>') +
         (on ? (S.title === t.n ? '<span class="tt">장착 중</span>' : '<button class="btn sm ghost" data-act="title-equip" data-t="' + esc(t.n) + '" style="justify-self:start;padding:4px 8px">장착</button>') : '') + '</div>';
     }).join('') + '</div>');
   });
@@ -3259,7 +3334,7 @@ const ACT = {
   'main-claim': () => {
     const m = MAIN[S.mainIdx]; if (!m || !m.ok(S)) return;
     S.mainIdx++; S.stats.quests++;
-    grant(m.p, m.e * expMult(), ['메인 퀘스트 완료', '▶ ' + m.t]);
+    grant(m.p * (1 + (tf('mp') + tf('all')) / 100), m.e * expMult(), ['메인 퀘스트 완료', '▶ ' + m.t]);
     if (S.mainIdx >= MAIN.length) sys(['메인 스토리 ' + Math.ceil(MAIN.length / 10) + '장 완료', '다음 장은 아직 열리지 않았습니다'], 'ALTERA');
     else if (S.mainIdx % 10 === 0) sys(['메인 스토리 ' + (S.mainIdx / 10) + '장 완료', (S.mainIdx / 10 + 1) + '장이 개방되었습니다'], 'ALTERA');
     commit();
@@ -3307,7 +3382,7 @@ const ACT = {
     try { navigator.clipboard.writeText(myId).then(() => sys(['ID 복사됨']), () => sys(['복사 실패', 'ID를 길게 눌러 직접 복사하십시오'])); }
     catch (e) { sys(['복사 실패', 'ID를 길게 눌러 직접 복사하십시오']); }
   },
-  'title-equip': d => { if (!S.titles.includes(d.t)) return; S.title = d.t; sys(['칭호 장착', '「' + d.t + '」']); commit(); },
+  'title-equip': d => { if (!S.titles.includes(d.t)) return; S.title = d.t; sys(['칭호 장착', '「' + d.t + '」', fxText(d.t)]); commit(); },
   'story-claim': () => storyClaim(),
   'story-choice': d => storyChoose(d.k),
   npce: d => resolveNpcEvent(+d.i),
@@ -3407,7 +3482,7 @@ document.addEventListener('input', e => {
   }
 });
 document.addEventListener('change', e => {
-  if (e.target.id === 'title-select') { S.title = e.target.value; sys(['칭호 변경', S.title || '없음']); commit(); }
+  if (e.target.id === 'title-select') { S.title = e.target.value; sys(['칭호 변경', S.title || '없음', fxText(S.title)]); commit(); }
   else if (e.target.id === 'chat-deep') chatDeep = !!e.target.checked;
 });
 document.addEventListener('keydown', e => {
